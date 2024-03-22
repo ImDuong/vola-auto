@@ -27,5 +27,5 @@ func (volp *HelpPlugin) GetArtifactsExtractionPath() string {
 
 func (volp *HelpPlugin) Run() error {
 	args := []string{config.Default.VolRunConfig.Binary, "-h"}
-	return plugins.RunVolatilityPluginAndWriteResult(args, volp.GetArtifactsExtractionPath())
+	return plugins.RunVolatilityPluginAndWriteResult(args, volp.GetArtifactsExtractionPath(), config.Default.IsForcedRerun)
 }

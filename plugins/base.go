@@ -30,11 +30,11 @@ func IsRunRequired(artifactExtractionFilepath string) bool {
 	return os.IsNotExist(err)
 }
 
-func RunVolatilityPluginAndWriteResult(args []string, resultFilepath string) error {
+func RunVolatilityPluginAndWriteResult(args []string, resultFilepath string, isOverride bool) error {
 	cmd := exec.Command(config.Default.VolRunConfig.Runner, args...)
 
 	perms := os.O_CREATE | os.O_WRONLY
-	if !config.Default.IsForcedRerun {
+	if !isOverride {
 		perms = perms | os.O_APPEND
 	} else {
 		perms = perms | os.O_TRUNC

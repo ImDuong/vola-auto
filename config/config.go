@@ -10,6 +10,7 @@ type (
 		VolRunConfig   VolatilityRunnerConfig
 		MemoryDumpPath string
 		OutputFolder   string
+		AnalyticFolder string
 		IsForcedRerun  bool
 	}
 )

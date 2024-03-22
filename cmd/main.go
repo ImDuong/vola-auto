@@ -2,46 +2,13 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 
 	"github.com/ImDuong/vola-auto/config"
-	"github.com/ImDuong/vola-auto/plugins"
-	"github.com/ImDuong/vola-auto/plugins/envars"
-	"github.com/ImDuong/vola-auto/plugins/help"
-	"github.com/ImDuong/vola-auto/plugins/info"
-	"github.com/ImDuong/vola-auto/plugins/process"
-	"github.com/alitto/pond"
+	"github.com/ImDuong/vola-auto/runner"
 )
-
-func runPlugins() {
-	volPlgs := []plugins.VolPlugin{
-		&help.HelpPlugin{},
-		&info.InfoPlugin{},
-		&process.ProcessPlugin{},
-		&envars.EnvarsPlugin{},
-	}
-
-	volPlgRunningPool := pond.New(5, 20)
-	for _, plg := range volPlgs {
-		if !plugins.IsRunRequired(plg.GetArtifactsExtractionPath()) {
-			fmt.Printf("Skipping plugin %s\n", plg.GetName())
-			continue
-		}
-		fmt.Printf("Start running plugin %s\n", plg.GetName())
-		volPlgRunningPool.Submit(func() {
-			err := plg.Run()
-			if err != nil {
-				fmt.Printf("Running plugin %s got %s\n", plg.GetName(), err.Error())
-				return
-			}
-		})
-		fmt.Printf("Finish running plugin %s\n", plg.GetName())
-	}
-	volPlgRunningPool.StopAndWait()
-}
 
 func main() {
 	// Define command line flags
@@ -66,8 +33,12 @@ func main() {
 	config.Default.VolRunConfig.Runner = "python"
 	config.Default.VolRunConfig.Binary = filepath.Join(*volatilityPath, "vol.py")
 	config.Default.OutputFolder = *outputFolderPath
+	config.Default.AnalyticFolder = filepath.Join(config.Default.OutputFolder, "analytics")
 	config.Default.MemoryDumpPath = *memDumpPath
 	config.Default.IsForcedRerun = *isForcedRerun
 
-	runPlugins()
+	err = runner.RunPlugins()
+	if err != nil {
+		log.Fatal(err)
+	}
 }

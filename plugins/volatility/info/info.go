@@ -26,6 +26,6 @@ func (volp *InfoPlugin) GetArtifactsExtractionPath() string {
 }
 
 func (volp *InfoPlugin) Run() error {
-	args := []string{config.Default.VolRunConfig.Binary, "-f", config.Default.MemoryDumpPath, "windows.cmdline.CmdLine"}
-	return plugins.RunVolatilityPluginAndWriteResult(args, volp.GetArtifactsExtractionPath())
+	args := []string{config.Default.VolRunConfig.Binary, "-f", config.Default.MemoryDumpPath, "windows.info.Info"}
+	return plugins.RunVolatilityPluginAndWriteResult(args, volp.GetArtifactsExtractionPath(), config.Default.IsForcedRerun)
 }
