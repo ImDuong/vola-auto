@@ -15,6 +15,12 @@ type (
 		GetArtifactsExtractionPath() string
 	}
 
+	CollectorPlugin interface {
+		Run() error
+		GetName() string
+		GetArtifactsCollectionPath() string
+	}
+
 	AnalyticPlugin interface {
 		Run() error
 		GetName() string

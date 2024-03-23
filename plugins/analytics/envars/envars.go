@@ -18,7 +18,7 @@ type (
 	EnvarsPlugin struct {
 	}
 
-	processInfo struct {
+	processEnvVar struct {
 		PID      string
 		Process  string
 		Block    string
@@ -28,7 +28,7 @@ type (
 )
 
 const (
-	PluginName         = "ENVARS PLUGIN"
+	PluginName         = "ENVARS ANALYTIC PLUGIN"
 	AnalyticResultPath = "envars.txt"
 )
 
@@ -92,7 +92,7 @@ func (anp *EnvarsPlugin) Run() error {
 	}
 	defer file.Close()
 
-	var suspiciousProcesses []processInfo
+	var suspiciousProcesses []processEnvVar
 
 	scanner := bufio.NewScanner(file)
 	isProcessDataFound := false
@@ -104,7 +104,7 @@ func (anp *EnvarsPlugin) Run() error {
 			continue
 		}
 		if !isProcessDataFound {
-			if strings.Contains(line, "PID") || strings.Contains(line, "Process") || strings.Contains(line, "Block") || strings.Contains(line, "Variable") || strings.Contains(line, "Value") {
+			if strings.Contains(line, "PID") && strings.Contains(line, "Process") && strings.Contains(line, "Block") && strings.Contains(line, "Variable") && strings.Contains(line, "Value") {
 				isProcessDataFound = true
 			}
 			continue
@@ -124,7 +124,7 @@ func (anp *EnvarsPlugin) Run() error {
 			variableValue = parts[4]
 		}
 
-		suspiciousProcesses = append(suspiciousProcesses, processInfo{
+		suspiciousProcesses = append(suspiciousProcesses, processEnvVar{
 			PID:      parts[0],
 			Process:  parts[1],
 			Block:    parts[2],
