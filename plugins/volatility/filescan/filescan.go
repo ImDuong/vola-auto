@@ -1,4 +1,4 @@
-package pe_version
+package filescan
 
 import (
 	"path/filepath"
@@ -8,29 +8,28 @@ import (
 )
 
 type (
-	PEVersionPlugin struct {
+	FilescanPlugin struct {
 	}
 )
 
 const (
-	PluginName                  = "PE_VERSION PLUGIN"
-	ArtifactsExtractionFilename = "pe_version.txt"
+	PluginName                  = "FILESCAN PLUGIN"
+	ArtifactsExtractionFilename = "filescan.txt"
 )
 
-func (volp *PEVersionPlugin) GetName() string {
+func (volp *FilescanPlugin) GetName() string {
 	return PluginName
 }
 
-func (volp *PEVersionPlugin) GetArtifactsExtractionPath() string {
+func (volp *FilescanPlugin) GetArtifactsExtractionPath() string {
 	return filepath.Join(config.Default.OutputFolder, ArtifactsExtractionFilename)
 }
 
-func (volp *PEVersionPlugin) Run() error {
-	args := []string{"windows.verinfo.VerInfo"}
+func (volp *FilescanPlugin) Run() error {
+	args := []string{"windows.filescan.FileScan"}
 	err := plugins.RunVolatilityPluginAndWriteResult(args, volp.GetArtifactsExtractionPath(), config.Default.IsForcedRerun)
 	if err != nil {
 		return err
 	}
-
 	return nil
 }

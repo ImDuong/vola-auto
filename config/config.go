@@ -7,11 +7,12 @@ type (
 	}
 
 	Configuration struct {
-		VolRunConfig   VolatilityRunnerConfig
-		MemoryDumpPath string
-		OutputFolder   string
-		AnalyticFolder string
-		IsForcedRerun  bool
+		VolRunConfig    VolatilityRunnerConfig
+		MemoryDumpPath  string
+		OutputFolder    string
+		AnalyticFolder  string
+		DumpFilesFolder string
+		IsForcedRerun   bool
 	}
 )
 

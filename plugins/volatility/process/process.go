@@ -26,13 +26,13 @@ func (volp *ProcessPlugin) GetArtifactsExtractionPath() string {
 }
 
 func (volp *ProcessPlugin) Run() error {
-	args := []string{config.Default.VolRunConfig.Binary, "-f", config.Default.MemoryDumpPath, "windows.cmdline.CmdLine"}
+	args := []string{"windows.cmdline.CmdLine"}
 	err := plugins.RunVolatilityPluginAndWriteResult(args, volp.GetArtifactsExtractionPath(), config.Default.IsForcedRerun)
 	if err != nil {
 		return err
 	}
 
-	args = []string{config.Default.VolRunConfig.Binary, "-f", config.Default.MemoryDumpPath, "windows.pstree.PsTree"}
+	args = []string{"windows.pstree.PsTree"}
 	err = plugins.RunVolatilityPluginAndWriteResult(args, volp.GetArtifactsExtractionPath(), false)
 	if err != nil {
 		return err

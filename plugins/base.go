@@ -30,21 +30,25 @@ func IsRunRequired(artifactExtractionFilepath string) bool {
 	return os.IsNotExist(err)
 }
 
-func RunVolatilityPluginAndWriteResult(args []string, resultFilepath string, isOverride bool) error {
-	cmd := exec.Command(config.Default.VolRunConfig.Runner, args...)
-
+func GetPermissionsToWriteResult(isOverride bool) int {
 	perms := os.O_CREATE | os.O_WRONLY
 	if !isOverride {
 		perms = perms | os.O_APPEND
 	} else {
 		perms = perms | os.O_TRUNC
 	}
-	outputFileWriter, err := os.OpenFile(resultFilepath, perms, 0644)
+	return perms
+}
+
+func RunVolatilityPluginAndWriteResult(args []string, resultFilepath string, isOverride bool) error {
+	outputFileWriter, err := os.OpenFile(resultFilepath, GetPermissionsToWriteResult(isOverride), 0644)
 	if err != nil {
 		return err
 	}
 	defer outputFileWriter.Close()
 
+	args = append([]string{config.Default.VolRunConfig.Binary, "-f", config.Default.MemoryDumpPath}, args...)
+	cmd := exec.Command(config.Default.VolRunConfig.Runner, args...)
 	cmd.Stdout = outputFileWriter
 	cmd.Stderr = outputFileWriter
 

@@ -26,6 +26,6 @@ func (volp *EnvarsPlugin) GetArtifactsExtractionPath() string {
 }
 
 func (volp *EnvarsPlugin) Run() error {
-	args := []string{config.Default.VolRunConfig.Binary, "-f", config.Default.MemoryDumpPath, "windows.envars.Envars"}
+	args := []string{"windows.envars.Envars"}
 	return plugins.RunVolatilityPluginAndWriteResult(args, volp.GetArtifactsExtractionPath(), config.Default.IsForcedRerun)
 }
