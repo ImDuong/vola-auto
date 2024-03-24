@@ -4,9 +4,12 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 
+	"github.com/ImDuong/vola-auto/config"
 	"github.com/ImDuong/vola-auto/datastore"
+	"github.com/ImDuong/vola-auto/plugins"
 	"github.com/ImDuong/vola-auto/plugins/volatility/filescan"
 )
 
@@ -15,19 +18,15 @@ type (
 	}
 )
 
-const (
-	PluginName = "FILES COLLECTION PLUGIN"
-)
-
 func (colp *FilesPlugin) GetName() string {
-	return PluginName
+	return "FILES COLLECTION PLUGIN"
 }
 
 func (colp *FilesPlugin) GetArtifactsCollectionPath() string {
 	return ""
 }
 
-// this plugin only process & store info about files in memory, not dump files
+// Run() only processes & stores info about files in memory, not dump files
 func (colp *FilesPlugin) Run() error {
 	correspPlg := filescan.FilescanPlugin{}
 	filescanArtifactFiles, err := os.Open(correspPlg.GetArtifactsExtractionPath())
@@ -70,9 +69,48 @@ func (colp *FilesPlugin) Run() error {
 	}
 
 	if err := scanner.Err(); err != nil {
-		fmt.Println(PluginName, ":got some errors when collecting artifacts")
+		fmt.Println(colp.GetName(), ":got some errors when collecting artifacts")
 	}
 	return nil
+}
+
+func (colp *FilesPlugin) FindFilesByRegex(regex string) ([]datastore.FileInfo, error) {
+	var matchingItems []datastore.FileInfo
+	re, err := regexp.Compile(regex)
+	if err != nil {
+		return matchingItems, err
+	}
+
+	for _, fileInfo := range datastore.FileList {
+		if re.MatchString(fileInfo.Path) {
+			matchingItems = append(matchingItems, fileInfo)
+		}
+	}
+
+	return matchingItems, nil
+}
+
+func (colp *FilesPlugin) DumpFile(dumpFile datastore.FileInfo, outputFolder string) error {
+	var offset string
+	var offsetTypeFlag string
+	if len(dumpFile.PhysicalAddrOffset) != 0 {
+		offset = dumpFile.PhysicalAddrOffset
+		offsetTypeFlag = "--physaddr"
+	} else if len(dumpFile.VirtualAddrOffset) != 0 {
+		offset = dumpFile.VirtualAddrOffset
+		offsetTypeFlag = "--virtaddr"
+	}
+	if len(offset) == 0 {
+		return fmt.Errorf("empty offset to dump file %s", dumpFile.Path)
+	}
+
+	args := []string{config.Default.VolRunConfig.Binary,
+		"-f", config.Default.MemoryDumpPath,
+		"-o", outputFolder,
+		"windows.dumpfiles.DumpFiles",
+		offsetTypeFlag, offset,
+	}
+	return plugins.RunVolatilityPluginAndWriteResult(args, "", true)
 }
 
 // TODO: dump all files and put them in original folder structure

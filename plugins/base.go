@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/ImDuong/vola-auto/config"
 )
@@ -28,12 +29,32 @@ type (
 	}
 )
 
+// IsRunRequired checks if plugin is required to run, whenever one of this conditions happens:
+// - user passes flags to force re-run
+// - file does not exist
+// - the passed path is an empty folder
 func IsRunRequired(artifactExtractionFilepath string) bool {
 	if config.Default.IsForcedRerun {
 		return true
 	}
-	_, err := os.Stat(artifactExtractionFilepath)
-	return os.IsNotExist(err)
+	fileInfo, err := os.Stat(artifactExtractionFilepath)
+	if os.IsNotExist(err) {
+		return true
+	}
+
+	if !fileInfo.IsDir() {
+		return false
+	}
+
+	f, err := os.Open(artifactExtractionFilepath)
+	if err != nil {
+		return true
+	}
+	defer f.Close()
+
+	// the plugin does not need to re-run if the folder has at least 1 item
+	_, err = f.Readdirnames(1)
+	return err != nil
 }
 
 func GetPermissionsToWriteResult(isOverride bool) int {
@@ -47,19 +68,24 @@ func GetPermissionsToWriteResult(isOverride bool) int {
 }
 
 func RunVolatilityPluginAndWriteResult(args []string, resultFilepath string, isOverride bool) error {
-	outputFileWriter, err := os.OpenFile(resultFilepath, GetPermissionsToWriteResult(isOverride), 0644)
-	if err != nil {
-		return err
+	// allow caller to not pass common flags when needed
+	if len(args) > 0 && !strings.EqualFold(args[0], config.Default.VolRunConfig.Binary) {
+		args = append([]string{config.Default.VolRunConfig.Binary, "-f", config.Default.MemoryDumpPath}, args...)
 	}
-	defer outputFileWriter.Close()
 
-	args = append([]string{config.Default.VolRunConfig.Binary, "-f", config.Default.MemoryDumpPath}, args...)
 	cmd := exec.Command(config.Default.VolRunConfig.Runner, args...)
-	cmd.Stdout = outputFileWriter
-	cmd.Stderr = outputFileWriter
+	if len(resultFilepath) != 0 {
+		outputFileWriter, err := os.OpenFile(resultFilepath, GetPermissionsToWriteResult(isOverride), 0644)
+		if err != nil {
+			return err
+		}
+		defer outputFileWriter.Close()
+		cmd.Stdout = outputFileWriter
+		cmd.Stderr = outputFileWriter
+	}
 
 	fmt.Println("Executing", cmd.Args, "and writing to", resultFilepath)
-	err = cmd.Run()
+	err := cmd.Run()
 	if err != nil {
 		return err
 	}

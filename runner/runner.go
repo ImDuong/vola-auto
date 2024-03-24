@@ -18,6 +18,10 @@ func RunPlugins() error {
 	if err != nil {
 		return err
 	}
+	err = runCollectorPlugins()
+	if err != nil {
+		return err
+	}
 	err = runAnalyticPlugins()
 	if err != nil {
 		return err
