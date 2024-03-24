@@ -8,6 +8,7 @@ import (
 
 	"github.com/ImDuong/vola-auto/config"
 	"github.com/ImDuong/vola-auto/runner"
+	"github.com/ImDuong/vola-auto/utils"
 )
 
 func main() {
@@ -22,7 +23,15 @@ func main() {
 		os.Exit(1)
 	}
 
-	config.Default.VolRunConfig.Runner = "python"
+	pythonRunner, pythonVersion, err := utils.GetPythonRunner()
+	if err != nil {
+		log.Fatalf("Error when getting python version")
+	}
+	if len(pythonVersion) > 2 && pythonVersion[0] == '2' {
+		log.Fatalf("volatility 2 is not supported yet")
+	}
+	config.Default.VolRunConfig.Runner = pythonRunner
+
 	config.Default.VolRunConfig.Binary = filepath.Join(*volatilityPath, "vol.py")
 	config.Default.OutputFolder = *outputFolderPath
 	config.Default.DumpFilesFolder = filepath.Join(config.Default.OutputFolder, "dump_files")
@@ -30,19 +39,19 @@ func main() {
 	config.Default.MemoryDumpPath = *memDumpPath
 	config.Default.IsForcedRerun = *isForcedRerun
 
-	err := os.MkdirAll(config.Default.OutputFolder, 0755)
+	err = os.MkdirAll(config.Default.OutputFolder, 0755)
 	if err != nil {
 		log.Fatalf("Error creating output folder: %v\n", err)
 	}
 
 	err = os.MkdirAll(config.Default.DumpFilesFolder, 0755)
 	if err != nil {
-		log.Fatalf("Error creating output folder: %v\n", err)
+		log.Fatalf("Error creating dump files folder: %v\n", err)
 	}
 
 	err = os.MkdirAll(config.Default.AnalyticFolder, 0755)
 	if err != nil {
-		log.Fatalf("Error creating output folder: %v\n", err)
+		log.Fatalf("Error creating analytic folder: %v\n", err)
 	}
 
 	err = runner.RunPlugins()
