@@ -16,18 +16,18 @@ type (
 )
 
 const (
-	PluginName = "FILES CONSTRUCTING PLUGIN"
+	PluginName = "FILES COLLECTION PLUGIN"
 )
 
 func (colp *FilesPlugin) GetName() string {
 	return PluginName
 }
 
-// this plugin only process & store info about files in memory
 func (colp *FilesPlugin) GetArtifactsCollectionPath() string {
 	return ""
 }
 
+// this plugin only process & store info about files in memory, not dump files
 func (colp *FilesPlugin) Run() error {
 	correspPlg := filescan.FilescanPlugin{}
 	filescanArtifactFiles, err := os.Open(correspPlg.GetArtifactsExtractionPath())
@@ -56,13 +56,26 @@ func (colp *FilesPlugin) Run() error {
 			continue
 		}
 
-		datastore.FileList = append(datastore.FileList, datastore.FileInfo{
+		fileInfo := datastore.FileInfo{
 			Path: parts[1],
-		})
+		}
+
+		if datastore.HostInfo.Profile == "win10" {
+			fileInfo.VirtualAddrOffset = parts[0]
+		} else {
+			fileInfo.PhysicalAddrOffset = parts[0]
+		}
+
+		datastore.FileList = append(datastore.FileList, fileInfo)
 	}
 
 	if err := scanner.Err(); err != nil {
 		fmt.Println(PluginName, ":got some errors when collecting artifacts")
 	}
+	return nil
+}
+
+// TODO: dump all files and put them in original folder structure
+func (colp *FilesPlugin) DumpAllFiles() error {
 	return nil
 }
