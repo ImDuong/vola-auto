@@ -40,26 +40,61 @@ func main() {
 				Aliases:  []string{"v"},
 				Usage:    "Path to Volatility 3",
 				Required: true,
+				Action: func(ctx context.Context, c *cli.Command, s string) error {
+					config.Default.VolRunConfig.Binary = filepath.Join(s, "vol.py")
+					return nil
+				},
 			},
 			&cli.StringFlag{
 				Name:     "file",
 				Aliases:  []string{"f"},
 				Usage:    "Path to memory dump file",
 				Required: true,
+				Action: func(ctx context.Context, c *cli.Command, s string) error {
+					config.Default.MemoryDumpPath = s
+					return nil
+				},
 			},
 			&cli.StringFlag{
 				Name:     "output",
 				Aliases:  []string{"o"},
 				Usage:    "Path to output folder",
 				Required: true,
+				Action: func(ctx context.Context, c *cli.Command, s string) error {
+					config.Default.OutputFolder = s
+					config.Default.DumpFilesFolder = filepath.Join(config.Default.OutputFolder, "dump_files")
+					config.Default.AnalyticFolder = filepath.Join(config.Default.OutputFolder, "analytics")
+
+					var err error
+					err = os.MkdirAll(config.Default.OutputFolder, 0755)
+					if err != nil {
+						return fmt.Errorf("error creating output folder: %w", err)
+					}
+
+					err = os.MkdirAll(config.Default.DumpFilesFolder, 0755)
+					if err != nil {
+						return fmt.Errorf("error creating dump files folder: %w", err)
+					}
+
+					err = os.MkdirAll(config.Default.AnalyticFolder, 0755)
+					if err != nil {
+						return fmt.Errorf("error creating analytic folder: %w", err)
+					}
+
+					return nil
+				},
 			},
 			&cli.BoolFlag{
 				Name:    "rerun",
 				Aliases: []string{"r"},
 				Usage:   "Force to re-run all plugins. Override old results",
+				Action: func(ctx context.Context, c *cli.Command, b bool) error {
+					config.Default.IsForcedRerun = b
+					return nil
+				},
 			},
 		},
-		Action: func(ctx context.Context, cmd *cli.Command) error {
+		Before: func(ctx context.Context, c *cli.Command) error {
 			pythonRunner, pythonVersion, err := utils.GetPythonRunner()
 			if err != nil {
 				return fmt.Errorf("error when getting python version")
@@ -68,30 +103,10 @@ func main() {
 				return fmt.Errorf("volatility 2 is not supported yet")
 			}
 			config.Default.VolRunConfig.Runner = pythonRunner
-
-			config.Default.VolRunConfig.Binary = filepath.Join(cmd.String("v"), "vol.py")
-			config.Default.OutputFolder = cmd.String("o")
-			config.Default.DumpFilesFolder = filepath.Join(config.Default.OutputFolder, "dump_files")
-			config.Default.AnalyticFolder = filepath.Join(config.Default.OutputFolder, "analytics")
-			config.Default.MemoryDumpPath = cmd.String("f")
-			config.Default.IsForcedRerun = cmd.Bool("r")
-
-			err = os.MkdirAll(config.Default.OutputFolder, 0755)
-			if err != nil {
-				return fmt.Errorf("error creating output folder: %w", err)
-			}
-
-			err = os.MkdirAll(config.Default.DumpFilesFolder, 0755)
-			if err != nil {
-				return fmt.Errorf("error creating dump files folder: %w", err)
-			}
-
-			err = os.MkdirAll(config.Default.AnalyticFolder, 0755)
-			if err != nil {
-				return fmt.Errorf("error creating analytic folder: %w", err)
-			}
-
-			err = runner.RunPlugins()
+			return nil
+		},
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			err := runner.RunPlugins()
 			if err != nil {
 				return err
 			}
