@@ -6,10 +6,14 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/ImDuong/vola-auto/config"
+	"github.com/ImDuong/vola-auto/plugins/collectors"
+	"github.com/ImDuong/vola-auto/plugins/volatility/filescan"
 	"github.com/ImDuong/vola-auto/runner"
 	"github.com/ImDuong/vola-auto/utils"
+	"github.com/alitto/pond"
 	"github.com/urfave/cli/v3"
 )
 
@@ -27,9 +31,75 @@ func main() {
 						Aliases: []string{"r"},
 						Name:    "regex",
 					},
+					&cli.StringFlag{
+						Aliases: []string{"fs"},
+						Name:    "filescan",
+						Usage:   "Path to filescan plugin's output. If this flag is empty, auto find filescan.txt. If no file exists, auto run filescan plugin. However, if flag is not empty and file does not exist, program will exit",
+					},
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
-					// TODO: support regex
+					var err error
+					filescanResultPath := cmd.String("filescan")
+
+					// backup output folder path to store new output folder for running filescan plugin
+					backupOutputPath := config.Default.OutputFolder
+
+					filescanPlg := filescan.FilescanPlugin{}
+					fileCollectorPlg := collectors.FilesPlugin{}
+					if len(filescanResultPath) == 0 {
+						filescanResultPath = filescanPlg.GetArtifactsExtractionPath()
+
+						// run filescan plugin and store output to filescan.txt if filescan.txt does not exist
+						_, err = os.Stat(filescanResultPath)
+						if err != nil && !os.IsNotExist(err) {
+							return err
+						}
+						if os.IsNotExist(err) {
+							err = filescanPlg.Run()
+							if err != nil {
+								return err
+							}
+						}
+					} else {
+						_, err = os.Stat(filescanResultPath)
+						if err != nil {
+							return err
+						}
+
+						// set new value for output folder, because filescan.FilescanPlugin use this new path to read filescan result path
+						config.Default.OutputFolder = filepath.Dir(filescanResultPath)
+						filescanPlg.SetArtifactsExtractionFilename(filepath.Base(filescanResultPath))
+					}
+
+					// construct file lists
+					fileCollectorPlg.Run()
+
+					// restore original output folder path for dumping files
+					config.Default.OutputFolder = backupOutputPath
+
+					foundFiles, err := fileCollectorPlg.FindFilesByRegex(cmd.String("regex"))
+					if err != nil {
+						return err
+					}
+
+					dumpFilesPool := pond.New(20, 100)
+					var aggregatedError error
+					var aggregateErrorMutex sync.Mutex
+					for i := range foundFiles {
+						copiedIdx := i
+						dumpFilesPool.Submit(func() {
+							err := fileCollectorPlg.DumpFile(foundFiles[copiedIdx], config.Default.OutputFolder)
+							if err != nil {
+								aggregateErrorMutex.Lock()
+								aggregatedError = fmt.Errorf("%w;%w", aggregatedError, err)
+								aggregateErrorMutex.Unlock()
+							}
+						})
+					}
+					dumpFilesPool.StopAndWait()
+					if aggregatedError != nil {
+						return aggregatedError
+					}
 					return nil
 				},
 			},
@@ -56,17 +126,18 @@ func main() {
 				},
 			},
 			&cli.StringFlag{
-				Name:     "output",
-				Aliases:  []string{"o"},
-				Usage:    "Path to output folder",
-				Required: true,
+				Name:    "output",
+				Aliases: []string{"o"},
+				Usage:   "Path to output folder. If empty, output folder is set to artifacts folder in path having memory dump file",
 				Action: func(ctx context.Context, c *cli.Command, s string) error {
 					config.Default.OutputFolder = s
+
+					if len(config.Default.OutputFolder) == 0 {
+						config.Default.OutputFolder = filepath.Join(filepath.Dir(config.Default.MemoryDumpPath), "artifacts")
+					}
 					config.Default.DumpFilesFolder = filepath.Join(config.Default.OutputFolder, "dump_files")
 					config.Default.AnalyticFolder = filepath.Join(config.Default.OutputFolder, "analytics")
-
-					var err error
-					err = os.MkdirAll(config.Default.OutputFolder, 0755)
+					err := os.MkdirAll(config.Default.OutputFolder, 0755)
 					if err != nil {
 						return fmt.Errorf("error creating output folder: %w", err)
 					}
@@ -80,7 +151,6 @@ func main() {
 					if err != nil {
 						return fmt.Errorf("error creating analytic folder: %w", err)
 					}
-
 					return nil
 				},
 			},
@@ -106,7 +176,9 @@ func main() {
 			return nil
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
-			err := runner.RunPlugins()
+			var err error
+
+			err = runner.RunPlugins()
 			if err != nil {
 				return err
 			}

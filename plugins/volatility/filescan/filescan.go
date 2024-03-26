@@ -13,8 +13,11 @@ type (
 )
 
 const (
-	PluginName                  = "FILESCAN PLUGIN"
-	ArtifactsExtractionFilename = "filescan.txt"
+	PluginName = "FILESCAN PLUGIN"
+)
+
+var (
+	artifactsExtractionFilename = "filescan.txt"
 )
 
 func (volp *FilescanPlugin) GetName() string {
@@ -22,7 +25,11 @@ func (volp *FilescanPlugin) GetName() string {
 }
 
 func (volp *FilescanPlugin) GetArtifactsExtractionPath() string {
-	return filepath.Join(config.Default.OutputFolder, ArtifactsExtractionFilename)
+	return filepath.Join(config.Default.OutputFolder, artifactsExtractionFilename)
+}
+
+func (volp *FilescanPlugin) SetArtifactsExtractionFilename(fileName string) {
+	artifactsExtractionFilename = fileName
 }
 
 func (volp *FilescanPlugin) Run() error {
