@@ -2,8 +2,8 @@
 The ultimate streamline for Volatitlity 3. Speed up process of memory artifacts extraction phase
 
 # Why this
-- Why this project is developed? I want to accelerate the artifacts extraction phase and combine automatic artifact analytics strategy. Volatility 3 focuses on reading memory, vola-auto focuses on extracting & analyzing artifacts. 
-- Why not a simple project using Volatility SDK? Frankly, Volatility 3 is written in Python, which makes the wrapper program should also be written in Python. And this is not what I want, because I just want to use Golang, and it's easy to cross compile as standalone binaries for multiple OSes. This is not intended to replace Volatility 3, but rather become an extra flavor for researchers who had already installed and been familiar with one of the best memory forensic tools. 
+- Why this project is developed? I want to accelerate the artifacts extraction phase and combine automatic artifact analyzing strategy. Volatility 3 focuses on reading memory, vola-auto focuses on extracting & analyzing artifacts. 
+- Why not a simple project using Volatility SDK? Frankly, Volatility 3 is written in Python, which makes the wrapper program should also be written in Python. And, vola-auto is not intended to replace Volatility 3, but rather become an extra flavor for researchers who had already installed and been familiar with one of the best memory forensic tools. On the other hand, with golang, it's easy to cross compile as standalone binaries for multiple OSes.
 
 # Features
 1. Auto run common plugins: info, filescan, process, etc. Auto dump common artifacts file: MFT, Logfile, prefetch, etc. Auto run customized artifacts analytics
@@ -28,7 +28,7 @@ The ultimate streamline for Volatitlity 3. Speed up process of memory artifacts 
     go run cmd\main.go -v <path_to_volatility3> -f <path_to_memory_dump> -o <output_folder>
     ```
 
-    - if `-o` is not specified, vola-auto will generate in folder `artifacts` in folder containing `path_to_memory_dump`
+    - if `-o` is not specified, vola-auto will generate folder `artifacts` in folder containing `path_to_memory_dump`
 
 ## Dump files with regex
 - To dump files with regex, use subcommand `dumpfiles` with `-reg` flag to pass regex.
