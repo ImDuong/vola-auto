@@ -28,7 +28,7 @@ func main() {
 				Usage:   "dump files",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
-						Aliases: []string{"r"},
+						Aliases: []string{"reg"},
 						Name:    "regex",
 					},
 					&cli.StringFlag{

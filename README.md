@@ -7,7 +7,7 @@ The ultimate streamline for Volatitlity 3. Speed up process of memory artifacts 
 
 # Features
 1. Auto run common plugins: info, filescan, process, etc. Auto dump common artifacts file: MFT, Logfile, prefetch, etc. Auto run customized artifacts analytics
-2. [TODO] Add regex for dumping files (currently Vol3 does not support it, which is different from Vol2)
+2. Add regex for dumping files (currently Vol3 does not support it, which is different from Vol2)
 3. [TODO] Run multiple commands parallelly
 
 - Note: just support Vol3 and Windows yet
@@ -17,9 +17,29 @@ The ultimate streamline for Volatitlity 3. Speed up process of memory artifacts 
 - Volatility 3
 
 # Getting started
-1. Install requirements for Volatility 3 or activate the env that you already setup for Volatility 3
-2. Run Volatility 3 auto streamline with 
+## Environment
+- Install requirements for Volatility 3 or activate the env that you already setup for Volatility 3
+- If running golang code directly, install go modules first with `go install`
+
+## Auto Streamline
+- Run Volatility 3 auto streamline with 
 
     ```
     go run cmd\main.go -v <path_to_volatility3> -f <path_to_memory_dump> -o <output_folder>
     ```
+
+    - if `-o` is not specified, vola-auto will generate in folder `artifacts` in folder containing `path_to_memory_dump`
+
+## Dump files with regex
+- To dump files with regex, use subcommand `dumpfiles` with `-reg` flag to pass regex.
+
+    ```
+    go run cmd\main.go -v <path_to_volatility3> -f <path_to_memory_dump> -o <output_folder> dumpfiles -reg "SCHEDLGU\.TXT$"
+    ```
+
+    - if `output_folder` does not contain filescan.txt (output file of filescan plugin) yet, vola-auto will run filescan plugin first to write `filescan.txt`, then starting to dump files
+    - To specify a specific `filescan.txt`, use `-fs` flag
+
+        ```
+        go run cmd\main.go -v <path_to_volatility3> -f <path_to_memory_dump> -o <output_folder> dumpfiles -reg "SCHEDLGU\.TXT$" -fs <path_to_filescan.txt>
+        ```
