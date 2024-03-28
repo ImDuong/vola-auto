@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/ImDuong/vola-auto/config"
+	"github.com/google/uuid"
 )
 
 type (
@@ -57,7 +60,7 @@ func IsRunRequired(artifactExtractionFilepath string) bool {
 	return err != nil
 }
 
-func GetPermissionsToWriteResult(isOverride bool) int {
+func GetFileOpenFlag(isOverride bool) int {
 	perms := os.O_CREATE | os.O_WRONLY
 	if !isOverride {
 		perms = perms | os.O_APPEND
@@ -68,14 +71,26 @@ func GetPermissionsToWriteResult(isOverride bool) int {
 }
 
 func RunVolatilityPluginAndWriteResult(args []string, resultFilepath string, isOverride bool) error {
-	// allow caller to not pass common flags when needed
+	isDumpingFile := false
+	if slices.Contains(args, "-o") {
+		isDumpingFile = true
+	}
+
+	// allow caller to skip passing common flags when needed
 	if len(args) > 0 && !strings.EqualFold(args[0], config.Default.VolRunConfig.Binary) {
 		args = append([]string{config.Default.VolRunConfig.Binary, "-f", config.Default.MemoryDumpPath}, args...)
 	}
 
 	cmd := exec.Command(config.Default.VolRunConfig.Runner, args...)
-	if len(resultFilepath) != 0 {
-		outputFileWriter, err := os.OpenFile(resultFilepath, GetPermissionsToWriteResult(isOverride), 0644)
+	if !isDumpingFile {
+		if len(resultFilepath) == 0 {
+			err := os.MkdirAll(filepath.Join(config.Default.OutputFolder, "temp"), 0755)
+			if err != nil {
+				return fmt.Errorf("error creating temp folder: %w", err)
+			}
+			resultFilepath = filepath.Join(config.Default.OutputFolder, "temp", uuid.New().String()[:8]+".txt")
+		}
+		outputFileWriter, err := os.OpenFile(resultFilepath, GetFileOpenFlag(isOverride), 0644)
 		if err != nil {
 			return err
 		}
@@ -84,7 +99,11 @@ func RunVolatilityPluginAndWriteResult(args []string, resultFilepath string, isO
 		cmd.Stderr = outputFileWriter
 	}
 
-	fmt.Println("Executing", cmd.Args, "and writing to", resultFilepath)
+	writingLog := ""
+	if !isDumpingFile {
+		writingLog = "and writing to" + resultFilepath
+	}
+	fmt.Println("Executing", cmd.Args, writingLog)
 	err := cmd.Run()
 	if err != nil {
 		return err

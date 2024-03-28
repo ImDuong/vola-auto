@@ -137,7 +137,7 @@ func (anp *EnvarsPlugin) Run() error {
 		fmt.Println(PluginName, ":got some errors when analyzing")
 	}
 
-	resultFile, err := os.OpenFile(anp.GetAnalyticResultPath(), plugins.GetPermissionsToWriteResult(config.Default.IsForcedRerun), 0644)
+	resultFile, err := os.OpenFile(anp.GetAnalyticResultPath(), plugins.GetFileOpenFlag(config.Default.IsForcedRerun), 0644)
 	if err != nil {
 		return err
 	}

@@ -1,14 +1,17 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/ImDuong/vola-auto/config"
+	"github.com/ImDuong/vola-auto/plugins"
 	"github.com/ImDuong/vola-auto/plugins/collectors"
 	"github.com/ImDuong/vola-auto/plugins/volatility/filescan"
 	"github.com/ImDuong/vola-auto/runner"
@@ -25,7 +28,7 @@ func main() {
 			{
 				Name:    "dumpfiles",
 				Aliases: []string{"d"},
-				Usage:   "dump files",
+				Usage:   "Dump files",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Aliases: []string{"reg"},
@@ -103,6 +106,44 @@ func main() {
 					return nil
 				},
 			},
+			{
+				Name:    "batch",
+				Aliases: []string{"b"},
+				Usage:   "Run multiples commands parallely",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Aliases: []string{"f"},
+						Name:    "file",
+					},
+				},
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					commandFile, err := os.Open(cmd.String("file"))
+					if err != nil {
+						return err
+					}
+					defer commandFile.Close()
+
+					commandPool := pond.New(20, 100)
+					scanner := bufio.NewScanner(commandFile)
+					for scanner.Scan() {
+						line := strings.TrimSpace(scanner.Text())
+						commandArgs := strings.Split(line, " ")
+						args := []string{config.Default.VolRunConfig.Binary,
+							"-f", config.Default.MemoryDumpPath,
+						}
+						args = append(args, commandArgs...)
+						commandPool.Submit(func() {
+							err = plugins.RunVolatilityPluginAndWriteResult(args, "", true)
+							if err != nil {
+								fmt.Printf("[ERROR] Running command %s failed: %s\n", line, err.Error())
+								return
+							}
+						})
+					}
+					commandPool.StopAndWait()
+					return scanner.Err()
+				},
+			},
 		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
@@ -122,17 +163,10 @@ func main() {
 				Required: true,
 				Action: func(ctx context.Context, c *cli.Command, s string) error {
 					config.Default.MemoryDumpPath = s
-					return nil
-				},
-			},
-			&cli.StringFlag{
-				Name:    "output",
-				Aliases: []string{"o"},
-				Usage:   "Path to output folder. If empty, output folder is set to artifacts folder in path having memory dump file",
-				Action: func(ctx context.Context, c *cli.Command, s string) error {
-					config.Default.OutputFolder = s
+					config.Default.OutputFolder = c.String("output")
 
 					if len(config.Default.OutputFolder) == 0 {
+						fmt.Println("memory dump path", config.Default.MemoryDumpPath)
 						config.Default.OutputFolder = filepath.Join(filepath.Dir(config.Default.MemoryDumpPath), "artifacts")
 					}
 					config.Default.DumpFilesFolder = filepath.Join(config.Default.OutputFolder, "dump_files")
@@ -151,6 +185,15 @@ func main() {
 					if err != nil {
 						return fmt.Errorf("error creating analytic folder: %w", err)
 					}
+					return nil
+				},
+			},
+			&cli.StringFlag{
+				Name:    "output",
+				Aliases: []string{"o"},
+				Usage:   "Path to output folder. If empty, output folder is set to artifacts folder in path having memory dump file",
+				Action: func(ctx context.Context, c *cli.Command, s string) error {
+
 					return nil
 				},
 			},
@@ -176,9 +219,7 @@ func main() {
 			return nil
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
-			var err error
-
-			err = runner.RunPlugins()
+			err := runner.RunPlugins()
 			if err != nil {
 				return err
 			}
