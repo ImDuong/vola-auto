@@ -8,7 +8,7 @@ The ultimate streamline for Volatitlity 3. Speed up process of memory artifacts 
 # Features
 1. Auto run common plugins: info, filescan, process, etc. Auto dump common artifacts file: MFT, Logfile, prefetch, etc. Auto run customized artifacts analytics
 2. Add regex for dumping files (currently Vol3 does not support it, which is different from Vol2)
-3. [TODO] Run multiple commands parallelly
+3. Run multiple commands parallelly from a file
 
 - Note: just support Vol3 and Windows yet
 
@@ -43,3 +43,19 @@ The ultimate streamline for Volatitlity 3. Speed up process of memory artifacts 
         ```
         go run cmd\main.go -v <path_to_volatility3> -f <path_to_memory_dump> -o <output_folder> dumpfiles -reg "SCHEDLGU\.TXT$" -fs <path_to_filescan.txt>
         ```
+
+## Execute batch of commands parallely
+- Write commands in each line in a file. For example:
+    ```
+    windows.pstree.PsTree
+    windows.psscan.PsScan
+    windows.pslist.PsList
+    ```
+
+- Use subcommand `batch`
+
+    ```
+    go run cmd\main.go -v <path_to_volatility3> -f <path_to_memory_dump> -o <output_folder> batch -f <path_to_command_file>
+    ```
+
+    - Results of command will be logged to files in `temp` folder inside `output_folder`
