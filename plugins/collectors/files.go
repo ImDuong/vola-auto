@@ -4,17 +4,21 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/ImDuong/vola-auto/config"
 	"github.com/ImDuong/vola-auto/datastore"
 	"github.com/ImDuong/vola-auto/plugins"
 	"github.com/ImDuong/vola-auto/plugins/volatility/filescan"
+	"github.com/alitto/pond"
 )
 
 type (
 	FilesPlugin struct {
+		WorkerPool *pond.WorkerPool
 	}
 )
 
@@ -111,6 +115,44 @@ func (colp *FilesPlugin) DumpFile(dumpFile datastore.FileInfo, outputFolder stri
 		offsetTypeFlag, offset,
 	}
 	return plugins.RunVolatilityPluginAndWriteResult(args, "", true)
+}
+
+func (colp *FilesPlugin) DumpFiles(dumpFiles []datastore.FileInfo, outputFolder string) error {
+	var aggregatedError error
+	var aggregateErrorMutex sync.Mutex
+	taskGroup := colp.WorkerPool.Group()
+	for i := range dumpFiles {
+		copiedIdx := i
+		taskGroup.Submit(func() {
+			err := colp.DumpFile(dumpFiles[copiedIdx], outputFolder)
+			if err != nil {
+				aggregateErrorMutex.Lock()
+				aggregatedError = fmt.Errorf("%w;%w", aggregatedError, err)
+				aggregateErrorMutex.Unlock()
+			}
+		})
+	}
+	taskGroup.Wait()
+	if aggregatedError != nil {
+		return aggregatedError
+	}
+	return nil
+}
+
+func (colp *FilesPlugin) RenameDumpedFilesExtention(matchSuffix, newSuffix, outputFolder string) error {
+	return filepath.Walk(outputFolder, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() && strings.HasSuffix(info.Name(), matchSuffix) {
+			newName := strings.TrimSuffix(info.Name(), filepath.Ext(info.Name())) + newSuffix
+			err := os.Rename(path, filepath.Join(filepath.Dir(path), newName))
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }
 
 // TODO: dump all files and put them in original folder structure

@@ -5,18 +5,19 @@ import (
 
 	"github.com/ImDuong/vola-auto/plugins"
 	"github.com/ImDuong/vola-auto/plugins/collectors"
+	"github.com/ImDuong/vola-auto/plugins/collectors/eventlogs"
 	"github.com/ImDuong/vola-auto/plugins/collectors/prefetch"
 	"github.com/alitto/pond"
 )
 
 func runCollectorPlugins() error {
 	fmt.Println("STARTING COLLECTING")
-	volPlgs := []plugins.CollectorPlugin{
+	colPlgs := []plugins.CollectorPlugin{
 		&collectors.MachinePlugin{},
 		&collectors.FilesPlugin{},
 	}
 
-	for _, plg := range volPlgs {
+	for _, plg := range colPlgs {
 		fmt.Printf("Start running plugin %s\n", plg.GetName())
 		err := plg.Run()
 		if err != nil {
@@ -26,19 +27,25 @@ func runCollectorPlugins() error {
 		fmt.Printf("Finish running plugin %s\n", plg.GetName())
 	}
 
-	volPlgs = []plugins.CollectorPlugin{
-		&prefetch.PrefetchPlugin{},
+	colPlgRunningPool := pond.New(15, 100)
+	colPlgs = []plugins.CollectorPlugin{
+		&prefetch.PrefetchPlugin{
+			WorkerPool: colPlgRunningPool,
+		},
+		&eventlogs.EventLogsPlugin{
+			WorkerPool: colPlgRunningPool,
+		},
 	}
 
-	volPlgRunningPool := pond.New(5, 20)
-	for _, plg := range volPlgs {
+	mainTaskGroup := colPlgRunningPool.Group()
+	for _, plg := range colPlgs {
 		if !plugins.IsRunRequired(plg.GetArtifactsCollectionPath()) {
 			fmt.Printf("Skipping plugin %s\n", plg.GetName())
 			continue
 		}
 		fmt.Printf("Start running plugin %s\n", plg.GetName())
 		copiedPlg := plg
-		volPlgRunningPool.Submit(func() {
+		mainTaskGroup.Submit(func() {
 			err := copiedPlg.Run()
 			if err != nil {
 				fmt.Printf("Running plugin %s got %s\n", copiedPlg.GetName(), err.Error())
@@ -47,6 +54,8 @@ func runCollectorPlugins() error {
 			fmt.Printf("Finish running plugin %s\n", copiedPlg.GetName())
 		})
 	}
-	volPlgRunningPool.StopAndWait()
+
+	mainTaskGroup.Wait()
+	colPlgRunningPool.StopAndWait()
 	return nil
 }
