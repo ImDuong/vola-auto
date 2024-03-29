@@ -5,6 +5,7 @@ import (
 
 	"github.com/ImDuong/vola-auto/plugins"
 	"github.com/ImDuong/vola-auto/plugins/collectors"
+	"github.com/ImDuong/vola-auto/plugins/collectors/amcache"
 	"github.com/ImDuong/vola-auto/plugins/collectors/eventlogs"
 	"github.com/ImDuong/vola-auto/plugins/collectors/logfile"
 	"github.com/ImDuong/vola-auto/plugins/collectors/mft"
@@ -45,6 +46,9 @@ func runCollectorPlugins() error {
 			WorkerPool: colPlgRunningPool,
 		},
 		&logfile.LogFilePlugin{
+			WorkerPool: colPlgRunningPool,
+		},
+		&amcache.AmCachePlugin{
 			WorkerPool: colPlgRunningPool,
 		},
 	}

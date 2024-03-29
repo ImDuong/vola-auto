@@ -13,7 +13,7 @@ The ultimate streamline for Volatitlity 3. Speed up process of memory artifacts 
 - Note: just support Vol3 and Windows yet
 
 # Prerequisite
-- python3
+- Python3
 - Volatility 3
 
 # Getting started

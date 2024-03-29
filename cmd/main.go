@@ -166,11 +166,10 @@ func main() {
 					config.Default.OutputFolder = c.String("output")
 
 					if len(config.Default.OutputFolder) == 0 {
-						fmt.Println("memory dump path", config.Default.MemoryDumpPath)
 						config.Default.OutputFolder = filepath.Join(filepath.Dir(config.Default.MemoryDumpPath), "artifacts")
 					}
-					config.Default.DumpFilesFolder = filepath.Join(config.Default.OutputFolder, "dump_files")
-					config.Default.AnalyticFolder = filepath.Join(config.Default.OutputFolder, "analytics")
+					config.Default.AnalyticFolder = filepath.Join(config.Default.OutputFolder, "0_analytics")
+					config.Default.DumpFilesFolder = filepath.Join(config.Default.OutputFolder, "1_dump_files")
 					err := os.MkdirAll(config.Default.OutputFolder, 0755)
 					if err != nil {
 						return fmt.Errorf("error creating output folder: %w", err)
