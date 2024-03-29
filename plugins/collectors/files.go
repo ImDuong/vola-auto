@@ -80,7 +80,7 @@ func (colp *FilesPlugin) Run() error {
 
 func (colp *FilesPlugin) FindFilesByRegex(regex string) ([]datastore.FileInfo, error) {
 	var matchingItems []datastore.FileInfo
-	re, err := regexp.Compile(regex)
+	re, err := regexp.Compile("(?i)" + regex)
 	if err != nil {
 		return matchingItems, err
 	}

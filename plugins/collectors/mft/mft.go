@@ -32,7 +32,7 @@ func (colp *MFTPlugin) Run() error {
 	filePlg := collectors.FilesPlugin{
 		WorkerPool: colp.WorkerPool,
 	}
-	mftFiles, err := filePlg.FindFilesByRegex("Mft")
+	mftFiles, err := filePlg.FindFilesByRegex("mft")
 	if err != nil {
 		return err
 	}

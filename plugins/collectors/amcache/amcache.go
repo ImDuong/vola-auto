@@ -32,7 +32,7 @@ func (colp *AmCachePlugin) Run() error {
 	filePlg := collectors.FilesPlugin{
 		WorkerPool: colp.WorkerPool,
 	}
-	foundFiles, err := filePlg.FindFilesByRegex(`\\Windows\\appcompat\\Programs\\Amcache.hve`)
+	foundFiles, err := filePlg.FindFilesByRegex(`\\Windows\\AppCompat\\Programs\\Amcache.hve`)
 	if err != nil {
 		return err
 	}
