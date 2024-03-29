@@ -1,4 +1,4 @@
-package mft
+package logfile
 
 import (
 	"os"
@@ -10,20 +10,20 @@ import (
 )
 
 type (
-	MFTPlugin struct {
+	LogFilePlugin struct {
 		WorkerPool *pond.WorkerPool
 	}
 )
 
-func (colp *MFTPlugin) GetName() string {
-	return "MFT COLLECTION PLUGIN"
+func (colp *LogFilePlugin) GetName() string {
+	return "LogFile COLLECTION PLUGIN"
 }
 
-func (colp *MFTPlugin) GetArtifactsCollectionPath() string {
-	return filepath.Join(config.Default.OutputFolder, "mft")
+func (colp *LogFilePlugin) GetArtifactsCollectionPath() string {
+	return filepath.Join(config.Default.OutputFolder, "logfile")
 }
 
-func (colp *MFTPlugin) Run() error {
+func (colp *LogFilePlugin) Run() error {
 	err := os.MkdirAll(colp.GetArtifactsCollectionPath(), 0755)
 	if err != nil {
 		return err
@@ -32,12 +32,12 @@ func (colp *MFTPlugin) Run() error {
 	filePlg := collectors.FilesPlugin{
 		WorkerPool: colp.WorkerPool,
 	}
-	mftFiles, err := filePlg.FindFilesByRegex("Mft")
+	logFiles, err := filePlg.FindFilesByRegex(`\$LogFile`)
 	if err != nil {
 		return err
 	}
 
-	err = filePlg.DumpFiles(mftFiles, colp.GetArtifactsCollectionPath())
+	err = filePlg.DumpFiles(logFiles, colp.GetArtifactsCollectionPath())
 	if err != nil {
 		return err
 	}
