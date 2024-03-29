@@ -7,6 +7,7 @@ import (
 	"github.com/ImDuong/vola-auto/plugins/collectors"
 	"github.com/ImDuong/vola-auto/plugins/collectors/eventlogs"
 	"github.com/ImDuong/vola-auto/plugins/collectors/prefetch"
+	"github.com/ImDuong/vola-auto/plugins/collectors/system32_config_hive"
 	"github.com/alitto/pond"
 )
 
@@ -33,6 +34,9 @@ func runCollectorPlugins() error {
 			WorkerPool: colPlgRunningPool,
 		},
 		&eventlogs.EventLogsPlugin{
+			WorkerPool: colPlgRunningPool,
+		},
+		&system32_config_hive.HivePlugin{
 			WorkerPool: colPlgRunningPool,
 		},
 	}

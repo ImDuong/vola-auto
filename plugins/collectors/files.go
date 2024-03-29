@@ -155,6 +155,26 @@ func (colp *FilesPlugin) RenameDumpedFilesExtention(matchSuffix, newSuffix, outp
 	})
 }
 
+func (colp *FilesPlugin) ValidateDumpedFolder(dumpedFolder string) error {
+	f, err := os.Open(dumpedFolder)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	_, err = f.Readdirnames(1)
+	if err != nil {
+		// if no items, leave a note to skip the plugin for the next time
+		_, err = os.Create(filepath.Join(dumpedFolder, "no_items_dumped"))
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
+	return nil
+}
+
 // TODO: dump all files and put them in original folder structure
 func (colp *FilesPlugin) DumpAllFiles() error {
 	return nil

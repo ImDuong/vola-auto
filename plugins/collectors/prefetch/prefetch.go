@@ -43,5 +43,10 @@ func (colp *PrefetchPlugin) Run() error {
 		return err
 	}
 
-	return filePlg.RenameDumpedFilesExtention(".pf.dat", "", colp.GetArtifactsCollectionPath())
+	err = filePlg.RenameDumpedFilesExtention(".pf.dat", "", colp.GetArtifactsCollectionPath())
+	if err != nil {
+		return err
+	}
+
+	return filePlg.ValidateDumpedFolder(colp.GetArtifactsCollectionPath())
 }

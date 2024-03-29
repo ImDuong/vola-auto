@@ -23,7 +23,6 @@ func (colp *EventLogsPlugin) GetArtifactsCollectionPath() string {
 	return filepath.Join(config.Default.OutputFolder, "evtx")
 }
 
-// dump prefetch files
 func (colp *EventLogsPlugin) Run() error {
 	err := os.MkdirAll(colp.GetArtifactsCollectionPath(), 0755)
 	if err != nil {
@@ -47,5 +46,10 @@ func (colp *EventLogsPlugin) Run() error {
 	if err != nil {
 		return err
 	}
-	return filePlg.RenameDumpedFilesExtention(".evtx.vacb", "", colp.GetArtifactsCollectionPath())
+	err = filePlg.RenameDumpedFilesExtention(".evtx.vacb", "", colp.GetArtifactsCollectionPath())
+	if err != nil {
+		return err
+	}
+
+	return filePlg.ValidateDumpedFolder(colp.GetArtifactsCollectionPath())
 }
