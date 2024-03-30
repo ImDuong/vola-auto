@@ -10,6 +10,7 @@ import (
 	"github.com/ImDuong/vola-auto/plugins/collectors/logfile"
 	"github.com/ImDuong/vola-auto/plugins/collectors/mft"
 	"github.com/ImDuong/vola-auto/plugins/collectors/prefetch"
+	"github.com/ImDuong/vola-auto/plugins/collectors/sru"
 	"github.com/ImDuong/vola-auto/plugins/collectors/system32_config_hive"
 	"github.com/alitto/pond"
 )
@@ -49,6 +50,9 @@ func runCollectorPlugins() error {
 			WorkerPool: colPlgRunningPool,
 		},
 		&amcache.AmCachePlugin{
+			WorkerPool: colPlgRunningPool,
+		},
+		&sru.SRUPlugin{
 			WorkerPool: colPlgRunningPool,
 		},
 	}
