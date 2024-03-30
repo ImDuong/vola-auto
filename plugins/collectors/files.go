@@ -63,7 +63,7 @@ func (colp *FilesPlugin) Run() error {
 			Path: parts[1],
 		}
 
-		if datastore.HostInfo.Profile == "win10" {
+		if datastore.HostInfo.MainProfile == datastore.Win10Profile {
 			fileInfo.VirtualAddrOffset = parts[0]
 		} else {
 			fileInfo.PhysicalAddrOffset = parts[0]

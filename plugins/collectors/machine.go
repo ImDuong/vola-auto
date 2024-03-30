@@ -64,9 +64,9 @@ func (colp *MachinePlugin) Run() error {
 		if parts[0] == "NTBuildLab" {
 			datastore.HostInfo.NTBuildLab = parts[1]
 			if strings.Contains(datastore.HostInfo.NTBuildLab, "win7") {
-				datastore.HostInfo.Profile = "win7"
+				datastore.HostInfo.MainProfile = datastore.Win7Profile
 			} else if strings.Contains(datastore.HostInfo.NTBuildLab, "win10") {
-				datastore.HostInfo.Profile = "win10"
+				datastore.HostInfo.MainProfile = datastore.Win10Profile
 			}
 			continue
 		}
