@@ -33,7 +33,7 @@ func (colp *PrefetchPlugin) Run() error {
 	filePlg := collectors.FilesPlugin{
 		WorkerPool: colp.WorkerPool,
 	}
-	prefetchFiles, err := filePlg.FindFilesByRegex("\\.pf$")
+	prefetchFiles, err := filePlg.FindFilesByRegex(`\.pf`)
 	if err != nil {
 		return err
 	}

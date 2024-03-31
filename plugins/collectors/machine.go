@@ -70,6 +70,12 @@ func (colp *MachinePlugin) Run() error {
 			}
 			continue
 		}
+
+		if parts[0] == "NtMajorVersion" && len(datastore.HostInfo.MainProfile) == 0 {
+			if parts[1] == "10" {
+				datastore.HostInfo.MainProfile = datastore.Win10Profile
+			}
+		}
 	}
 
 	if err := scanner.Err(); err != nil {

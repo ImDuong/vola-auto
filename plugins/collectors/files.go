@@ -97,6 +97,9 @@ func (colp *FilesPlugin) FindFilesByRegex(regex string) ([]datastore.FileInfo, e
 func (colp *FilesPlugin) DumpFile(dumpFile datastore.FileInfo, outputFolder string) error {
 	var offset string
 	var offsetTypeFlag string
+	fmt.Println("strange here", dumpFile.Path)
+	fmt.Println("strange here", dumpFile.PhysicalAddrOffset)
+	fmt.Println("strange here", dumpFile.VirtualAddrOffset)
 	if len(dumpFile.PhysicalAddrOffset) != 0 {
 		offset = dumpFile.PhysicalAddrOffset
 		offsetTypeFlag = "--physaddr"

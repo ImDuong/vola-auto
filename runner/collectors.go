@@ -12,6 +12,7 @@ import (
 	"github.com/ImDuong/vola-auto/plugins/collectors/prefetch"
 	"github.com/ImDuong/vola-auto/plugins/collectors/sru"
 	"github.com/ImDuong/vola-auto/plugins/collectors/system32_config_hive"
+	"github.com/ImDuong/vola-auto/plugins/collectors/usnjrnl_j"
 	"github.com/alitto/pond"
 )
 
@@ -44,6 +45,9 @@ func runCollectorPlugins() error {
 			WorkerPool: colPlgRunningPool,
 		},
 		&mft.MFTPlugin{
+			WorkerPool: colPlgRunningPool,
+		},
+		&usnjrnl_j.UsnJrnlJPlugin{
 			WorkerPool: colPlgRunningPool,
 		},
 		&logfile.LogFilePlugin{
