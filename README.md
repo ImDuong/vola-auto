@@ -14,7 +14,7 @@ The ultimate streamline for Volatitlity 3. Speed up process of memory artifacts 
 
 # Prerequisite
 - Python3
-- Volatility 3
+- Volatility 3 (Vola-auto tested with Volatility 3 Framework 2.5.2 to 2.7.0)
 
 # Getting started
 ## Environment

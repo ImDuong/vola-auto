@@ -97,9 +97,6 @@ func (colp *FilesPlugin) FindFilesByRegex(regex string) ([]datastore.FileInfo, e
 func (colp *FilesPlugin) DumpFile(dumpFile datastore.FileInfo, outputFolder string) error {
 	var offset string
 	var offsetTypeFlag string
-	fmt.Println("strange here", dumpFile.Path)
-	fmt.Println("strange here", dumpFile.PhysicalAddrOffset)
-	fmt.Println("strange here", dumpFile.VirtualAddrOffset)
 	if len(dumpFile.PhysicalAddrOffset) != 0 {
 		offset = dumpFile.PhysicalAddrOffset
 		offsetTypeFlag = "--physaddr"
@@ -130,7 +127,11 @@ func (colp *FilesPlugin) DumpFiles(dumpFiles []datastore.FileInfo, outputFolder 
 			err := colp.DumpFile(dumpFiles[copiedIdx], outputFolder)
 			if err != nil {
 				aggregateErrorMutex.Lock()
-				aggregatedError = fmt.Errorf("%w;%w", aggregatedError, err)
+				if aggregatedError == nil {
+					aggregatedError = err
+				} else {
+					aggregatedError = fmt.Errorf("%w;%w", aggregatedError, err)
+				}
 				aggregateErrorMutex.Unlock()
 			}
 		})
