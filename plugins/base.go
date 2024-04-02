@@ -101,7 +101,7 @@ func RunVolatilityPluginAndWriteResult(args []string, resultFilepath string, isO
 
 	writingLog := ""
 	if !isDumpingFile {
-		writingLog = "and writing to" + resultFilepath
+		writingLog = "and writing to " + resultFilepath
 	}
 	fmt.Println("Executing", cmd.Args, writingLog)
 	err := cmd.Run()

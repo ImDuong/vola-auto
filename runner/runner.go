@@ -7,6 +7,7 @@ import (
 	"github.com/ImDuong/vola-auto/plugins/volatility/envars"
 	"github.com/ImDuong/vola-auto/plugins/volatility/filescan"
 	"github.com/ImDuong/vola-auto/plugins/volatility/help"
+	"github.com/ImDuong/vola-auto/plugins/volatility/hivelist"
 	"github.com/ImDuong/vola-auto/plugins/volatility/info"
 	"github.com/ImDuong/vola-auto/plugins/volatility/netstat"
 	"github.com/ImDuong/vola-auto/plugins/volatility/pe_version"
@@ -40,6 +41,7 @@ func runVolatilityPlugins() error {
 		&pe_version.PEVersionPlugin{},
 		&filescan.FilescanPlugin{},
 		&netstat.NetstatPlugin{},
+		&hivelist.HivelistPlugin{},
 	}
 
 	volPlgRunningPool := pond.New(5, 20)
