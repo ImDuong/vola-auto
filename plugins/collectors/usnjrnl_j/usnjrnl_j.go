@@ -53,5 +53,5 @@ func (colp *UsnJrnlJPlugin) Run() error {
 		return err
 	}
 
-	return filePlg.ValidateDumpedFolder(colp.GetArtifactsCollectionPath())
+	return nil
 }

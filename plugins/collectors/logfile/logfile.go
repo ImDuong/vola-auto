@@ -51,5 +51,5 @@ func (colp *LogFilePlugin) Run() error {
 		return err
 	}
 
-	return filePlg.ValidateDumpedFolder(colp.GetArtifactsCollectionPath())
+	return nil
 }

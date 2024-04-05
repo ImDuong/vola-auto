@@ -51,5 +51,5 @@ func (colp *MFTPlugin) Run() error {
 		return err
 	}
 
-	return filePlg.ValidateDumpedFolder(colp.GetArtifactsCollectionPath())
+	return nil
 }

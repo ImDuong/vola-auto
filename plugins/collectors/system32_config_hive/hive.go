@@ -60,5 +60,5 @@ func (colp *HivePlugin) Run() error {
 		}
 	}
 
-	return filePlg.ValidateDumpedFolder(colp.GetArtifactsCollectionPath())
+	return nil
 }

@@ -61,6 +61,9 @@ func runCollectorPlugins() error {
 		},
 	}
 
+	// empty file collector plugin to validate dumped folder
+	filePlg := collectors.FilesPlugin{}
+
 	mainTaskGroup := colPlgRunningPool.Group()
 	for _, plg := range colPlgs {
 		if !plugins.IsRunRequired(plg.GetArtifactsCollectionPath()) {
@@ -75,6 +78,13 @@ func runCollectorPlugins() error {
 				fmt.Printf("Running plugin %s got %s\n", copiedPlg.GetName(), err.Error())
 				return
 			}
+
+			err = filePlg.ValidateDumpedFolder(copiedPlg.GetArtifactsCollectionPath())
+			if err != nil {
+				fmt.Printf("Cannot validate dumped folder of plugin %s: %s\n", copiedPlg.GetName(), err.Error())
+				return
+			}
+
 			fmt.Printf("Finish running plugin %s\n", copiedPlg.GetName())
 		})
 	}
