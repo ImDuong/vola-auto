@@ -27,5 +27,15 @@ func (volp *LsadumpPlugin) GetArtifactsExtractionPath() string {
 
 func (volp *LsadumpPlugin) Run() error {
 	args := []string{"windows.lsadump.Lsadump"}
-	return plugins.RunVolatilityPluginAndWriteResult(args, volp.GetArtifactsExtractionPath(), config.Default.IsForcedRerun)
+	err := plugins.RunVolatilityPluginAndWriteResult(args, volp.GetArtifactsExtractionPath(), config.Default.IsForcedRerun)
+	if err != nil {
+		return err
+	}
+
+	args = []string{"windows.cachedump.Cachedump"}
+	err = plugins.RunVolatilityPluginAndWriteResult(args, volp.GetArtifactsExtractionPath(), false)
+	if err != nil {
+		return err
+	}
+	return nil
 }
