@@ -8,32 +8,26 @@ import (
 )
 
 type (
-	ProcessPlugin struct {
+	ProcessCmdlinePlugin struct {
 	}
 )
 
 const (
-	PluginName                  = "PROCESS PLUGIN"
-	ArtifactsExtractionFilename = "process.txt"
+	PluginName                  = "PROCESS CMDLINE PLUGIN"
+	ArtifactsExtractionFilename = "process_cmdline.txt"
 )
 
-func (volp *ProcessPlugin) GetName() string {
+func (volp *ProcessCmdlinePlugin) GetName() string {
 	return PluginName
 }
 
-func (volp *ProcessPlugin) GetArtifactsExtractionPath() string {
+func (volp *ProcessCmdlinePlugin) GetArtifactsExtractionPath() string {
 	return filepath.Join(config.Default.OutputFolder, ArtifactsExtractionFilename)
 }
 
-func (volp *ProcessPlugin) Run() error {
+func (volp *ProcessCmdlinePlugin) Run() error {
 	args := []string{"windows.cmdline.CmdLine"}
 	err := plugins.RunVolatilityPluginAndWriteResult(args, volp.GetArtifactsExtractionPath(), config.Default.IsForcedRerun)
-	if err != nil {
-		return err
-	}
-
-	args = []string{"windows.pstree.PsTree"}
-	err = plugins.RunVolatilityPluginAndWriteResult(args, volp.GetArtifactsExtractionPath(), false)
 	if err != nil {
 		return err
 	}

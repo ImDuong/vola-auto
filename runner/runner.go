@@ -37,7 +37,10 @@ func runVolatilityPlugins() error {
 	volPlgs := []plugins.VolPlugin{
 		&help.HelpPlugin{},
 		&info.InfoPlugin{},
-		&process.ProcessPlugin{},
+		&process.ProcessCmdlinePlugin{},
+		&process.ProcessPsListPlugin{},
+		&process.ProcessPsScanPlugin{},
+		&process.ProcessPsTreePlugin{},
 		&envars.EnvarsPlugin{},
 		&pe_version.PEVersionPlugin{},
 		&filescan.FilescanPlugin{},
@@ -46,7 +49,7 @@ func runVolatilityPlugins() error {
 		&lsadump.LsadumpPlugin{},
 	}
 
-	volPlgRunningPool := pond.New(5, 20)
+	volPlgRunningPool := pond.New(10, 20)
 	for _, plg := range volPlgs {
 		if !plugins.IsRunRequired(plg.GetArtifactsExtractionPath()) {
 			fmt.Printf("Skipping plugin %s\n", plg.GetName())
