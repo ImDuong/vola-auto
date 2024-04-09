@@ -59,3 +59,11 @@ The ultimate streamline for Volatitlity 3. Speed up process of memory artifacts 
     ```
 
     - Results of command will be logged to files in `temp` folder inside `output_folder`
+
+# Tips
+- To run vola-auto in verbose mode, run the program with environment variable `DEBUG` having value as `1`
+
+    ```
+    # windows
+    SET DEBUG=1 && go run cmd\main.go -v <path_to_volatility3> -f <path_to_memory_dump>
+    ```

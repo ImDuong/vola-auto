@@ -101,7 +101,7 @@ func RunVolatilityPluginAndWriteResult(args []string, resultFilepath string, isO
 		cmd.Stderr = outputFileWriter
 	}
 
-	utils.Logger.Info("Executing", zap.String("cmd", strings.Join(cmd.Args, " ")), zap.String("output", resultFilepath))
+	utils.Logger.Debug("Executing", zap.String("cmd", strings.Join(cmd.Args, " ")), zap.String("output", resultFilepath))
 	err := cmd.Run()
 	if err != nil {
 		return err
