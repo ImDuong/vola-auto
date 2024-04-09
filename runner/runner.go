@@ -10,6 +10,7 @@ import (
 	"github.com/ImDuong/vola-auto/plugins/volatility/hivelist"
 	"github.com/ImDuong/vola-auto/plugins/volatility/info"
 	"github.com/ImDuong/vola-auto/plugins/volatility/lsadump"
+	"github.com/ImDuong/vola-auto/plugins/volatility/mft"
 	"github.com/ImDuong/vola-auto/plugins/volatility/netstat"
 	"github.com/ImDuong/vola-auto/plugins/volatility/pe_version"
 	"github.com/ImDuong/vola-auto/plugins/volatility/process"
@@ -47,6 +48,7 @@ func runVolatilityPlugins() error {
 		&netstat.NetstatPlugin{},
 		&hivelist.HivelistPlugin{},
 		&lsadump.LsadumpPlugin{},
+		&mft.MFTAdsPlugin{},
 	}
 
 	volPlgRunningPool := pond.New(10, 20)
