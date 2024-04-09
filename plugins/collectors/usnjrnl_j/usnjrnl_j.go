@@ -1,13 +1,14 @@
 package usnjrnl_j
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/ImDuong/vola-auto/config"
 	"github.com/ImDuong/vola-auto/plugins/collectors"
+	"github.com/ImDuong/vola-auto/utils"
 	"github.com/alitto/pond"
+	"go.uber.org/zap"
 )
 
 type (
@@ -40,7 +41,8 @@ func (colp *UsnJrnlJPlugin) Run() error {
 
 	err = filePlg.DumpFiles(foundFiles, colp.GetArtifactsCollectionPath())
 	if err != nil {
-		fmt.Println("edge case", err)
+		// edge case when vol3 try to name the dump file with `:`
+		utils.Logger.Warn("Collecting artifacts", zap.String("plugin", colp.GetName()), zap.Error(err))
 		return err
 	}
 

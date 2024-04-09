@@ -18,6 +18,7 @@ import (
 	"github.com/ImDuong/vola-auto/utils"
 	"github.com/alitto/pond"
 	"github.com/urfave/cli/v3"
+	"go.uber.org/zap"
 )
 
 func main() {
@@ -135,7 +136,7 @@ func main() {
 						commandPool.Submit(func() {
 							err = plugins.RunVolatilityPluginAndWriteResult(args, "", true)
 							if err != nil {
-								fmt.Printf("[ERROR] Running command %s failed: %s\n", line, err.Error())
+								utils.Logger.Error("Running", zap.String("cmd", line), zap.Error(err))
 								return
 							}
 						})
@@ -222,6 +223,10 @@ func main() {
 			if err != nil {
 				return err
 			}
+			return nil
+		},
+		After: func(ctx context.Context, c *cli.Command) error {
+			utils.Logger.Sync()
 			return nil
 		},
 	}

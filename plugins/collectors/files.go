@@ -13,7 +13,9 @@ import (
 	"github.com/ImDuong/vola-auto/datastore"
 	"github.com/ImDuong/vola-auto/plugins"
 	"github.com/ImDuong/vola-auto/plugins/volatility/filescan"
+	"github.com/ImDuong/vola-auto/utils"
 	"github.com/alitto/pond"
+	"go.uber.org/zap"
 )
 
 type (
@@ -73,7 +75,7 @@ func (colp *FilesPlugin) Run() error {
 	}
 
 	if err := scanner.Err(); err != nil {
-		fmt.Println(colp.GetName(), ":got some errors when collecting artifacts")
+		utils.Logger.Warn("Collecting artifacts", zap.String("plugin", colp.GetName()), zap.Error(err))
 	}
 	return nil
 }

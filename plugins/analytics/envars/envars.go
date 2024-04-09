@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/csv"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -12,6 +11,8 @@ import (
 	"github.com/ImDuong/vola-auto/config"
 	"github.com/ImDuong/vola-auto/plugins"
 	"github.com/ImDuong/vola-auto/plugins/volatility/envars"
+	"github.com/ImDuong/vola-auto/utils"
+	"go.uber.org/zap"
 )
 
 type (
@@ -134,7 +135,7 @@ func (anp *EnvarsPlugin) Run() error {
 	}
 
 	if err := scanner.Err(); err != nil {
-		fmt.Println(PluginName, ":got some errors when analyzing")
+		utils.Logger.Warn("Analyzing", zap.String("plugin", PluginName), zap.Error(err))
 	}
 
 	resultFile, err := os.OpenFile(anp.GetAnalyticResultPath(), plugins.GetFileOpenFlag(config.Default.IsForcedRerun), 0644)
@@ -147,7 +148,7 @@ func (anp *EnvarsPlugin) Run() error {
 	defer writer.Flush()
 
 	if err := writer.Write([]string{"PID", "Process", "Block", "Variable", "Value"}); err != nil {
-		log.Fatalf("error writing header to CSV: %s", err)
+		return fmt.Errorf("write header to CSV failed: %s", err)
 	}
 
 	for _, p := range suspiciousProcesses {

@@ -1,13 +1,14 @@
 package system32_config_hive
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/ImDuong/vola-auto/config"
 	"github.com/ImDuong/vola-auto/plugins/collectors"
+	"github.com/ImDuong/vola-auto/utils"
 	"github.com/alitto/pond"
+	"go.uber.org/zap"
 )
 
 type (
@@ -43,19 +44,19 @@ func (colp *HivePlugin) Run() error {
 	for i := range hiveRegexes {
 		foundFiles, err := filePlg.FindFilesByRegex(hiveRegexes[i])
 		if err != nil {
-			fmt.Println("[WARNING] Cannot find files by regex", err)
+			utils.Logger.Warn("Find files by regex", zap.String("plugin", colp.GetName()), zap.String("regex", hiveRegexes[i]), zap.Error(err))
 			continue
 		}
 
 		err = filePlg.DumpFiles(foundFiles, colp.GetArtifactsCollectionPath())
 		if err != nil {
-			fmt.Println("[WARNING] Cannot dump files", err)
+			utils.Logger.Warn("Dump files", zap.String("plugin", colp.GetName()), zap.String("output", colp.GetArtifactsCollectionPath()), zap.Error(err))
 			continue
 		}
 
 		err = filePlg.RenameDumpedFilesExtention(".dat", "", colp.GetArtifactsCollectionPath())
 		if err != nil {
-			fmt.Println("[WARNING] Cannot rename files", err)
+			utils.Logger.Warn("Rename files", zap.String("plugin", colp.GetName()), zap.String("output", colp.GetArtifactsCollectionPath()), zap.Error(err))
 			continue
 		}
 	}

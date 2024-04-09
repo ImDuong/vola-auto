@@ -2,13 +2,14 @@ package collectors
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
 
 	"github.com/ImDuong/vola-auto/datastore"
 	"github.com/ImDuong/vola-auto/plugins/volatility/info"
+	"github.com/ImDuong/vola-auto/utils"
+	"go.uber.org/zap"
 )
 
 type (
@@ -79,7 +80,7 @@ func (colp *MachinePlugin) Run() error {
 	}
 
 	if err := scanner.Err(); err != nil {
-		fmt.Println(colp.GetName(), ":got some errors when collecting artifacts")
+		utils.Logger.Warn("Collecting artifacts", zap.String("plugin", colp.GetName()), zap.Error(err))
 	}
 	return nil
 }

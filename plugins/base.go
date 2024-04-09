@@ -9,7 +9,9 @@ import (
 	"strings"
 
 	"github.com/ImDuong/vola-auto/config"
+	"github.com/ImDuong/vola-auto/utils"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 type (
@@ -99,11 +101,7 @@ func RunVolatilityPluginAndWriteResult(args []string, resultFilepath string, isO
 		cmd.Stderr = outputFileWriter
 	}
 
-	writingLog := ""
-	if !isDumpingFile {
-		writingLog = "and writing to " + resultFilepath
-	}
-	fmt.Println("Executing", cmd.Args, writingLog)
+	utils.Logger.Info("Executing", zap.String("cmd", strings.Join(cmd.Args, " ")), zap.String("output", resultFilepath))
 	err := cmd.Run()
 	if err != nil {
 		return err

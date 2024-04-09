@@ -8,6 +8,11 @@ require (
 )
 
 require (
+	go.uber.org/multierr v1.11.0 // indirect
+	go.uber.org/zap v1.27.0 // indirect
+)
+
+require (
 	github.com/google/uuid v1.6.0
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 )

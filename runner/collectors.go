@@ -1,8 +1,6 @@
 package runner
 
 import (
-	"fmt"
-
 	"github.com/ImDuong/vola-auto/plugins"
 	"github.com/ImDuong/vola-auto/plugins/collectors"
 	"github.com/ImDuong/vola-auto/plugins/collectors/amcache"
@@ -13,24 +11,25 @@ import (
 	"github.com/ImDuong/vola-auto/plugins/collectors/sru"
 	"github.com/ImDuong/vola-auto/plugins/collectors/system32_config_hive"
 	"github.com/ImDuong/vola-auto/plugins/collectors/usnjrnl_j"
+	"github.com/ImDuong/vola-auto/utils"
 	"github.com/alitto/pond"
+	"go.uber.org/zap"
 )
 
 func runCollectorPlugins() error {
-	fmt.Println("STARTING COLLECTING")
 	colPlgs := []plugins.CollectorPlugin{
 		&collectors.MachinePlugin{},
 		&collectors.FilesPlugin{},
 	}
 
 	for _, plg := range colPlgs {
-		fmt.Printf("Start running plugin %s\n", plg.GetName())
+		utils.Logger.Info("Running", zap.String("plugin", plg.GetName()))
 		err := plg.Run()
 		if err != nil {
-			fmt.Printf("Running plugin %s got %s\n", plg.GetName(), err.Error())
+			utils.Logger.Error("Running", zap.String("plugin", plg.GetName()), zap.Error(err))
 			continue
 		}
-		fmt.Printf("Finish running plugin %s\n", plg.GetName())
+		utils.Logger.Info("Finish", zap.String("plugin", plg.GetName()))
 	}
 
 	colPlgRunningPool := pond.New(15, 100)
@@ -67,25 +66,25 @@ func runCollectorPlugins() error {
 	mainTaskGroup := colPlgRunningPool.Group()
 	for _, plg := range colPlgs {
 		if !plugins.IsRunRequired(plg.GetArtifactsCollectionPath()) {
-			fmt.Printf("Skipping plugin %s\n", plg.GetName())
+			utils.Logger.Warn("Skipping", zap.String("plugin", plg.GetName()))
 			continue
 		}
-		fmt.Printf("Start running plugin %s\n", plg.GetName())
+		utils.Logger.Info("Running", zap.String("plugin", plg.GetName()))
 		copiedPlg := plg
 		mainTaskGroup.Submit(func() {
 			err := copiedPlg.Run()
 			if err != nil {
-				fmt.Printf("Running plugin %s got %s\n", copiedPlg.GetName(), err.Error())
+				utils.Logger.Error("Running", zap.String("plugin", copiedPlg.GetName()), zap.Error(err))
 				return
 			}
 
 			err = filePlg.ValidateDumpedFolder(copiedPlg.GetArtifactsCollectionPath())
 			if err != nil {
-				fmt.Printf("Cannot validate dumped folder of plugin %s: %s\n", copiedPlg.GetName(), err.Error())
+				utils.Logger.Error("Validate dumped folder", zap.String("plugin", copiedPlg.GetName()), zap.Error(err))
 				return
 			}
 
-			fmt.Printf("Finish running plugin %s\n", copiedPlg.GetName())
+			utils.Logger.Info("Finish", zap.String("plugin", copiedPlg.GetName()))
 		})
 	}
 
