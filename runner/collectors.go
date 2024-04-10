@@ -20,6 +20,7 @@ func runCollectorPlugins() error {
 	colPlgs := []plugins.CollectorPlugin{
 		&collectors.MachinePlugin{},
 		&collectors.FilesPlugin{},
+		&collectors.ProcessesPlugin{},
 	}
 
 	for _, plg := range colPlgs {
