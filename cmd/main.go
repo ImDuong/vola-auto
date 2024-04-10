@@ -17,13 +17,18 @@ import (
 	"github.com/ImDuong/vola-auto/runner"
 	"github.com/ImDuong/vola-auto/utils"
 	"github.com/alitto/pond"
+	"github.com/gen2brain/beeep"
 	"github.com/urfave/cli/v3"
 	"go.uber.org/zap"
 )
 
+const (
+	AppName = "Vola Auto"
+)
+
 func main() {
 	cmd := &cli.Command{
-		Name:  "Vola Auto",
+		Name:  AppName,
 		Usage: "Auto streamline for Volatility 3",
 		Commands: []*cli.Command{
 			{
@@ -227,6 +232,11 @@ func main() {
 		},
 		After: func(ctx context.Context, c *cli.Command) error {
 			utils.Logger.Sync()
+
+			err := beeep.Notify(AppName, "Streamline Completed", "")
+			if err != nil {
+				panic(err)
+			}
 			return nil
 		},
 	}
