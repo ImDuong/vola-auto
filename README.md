@@ -1,5 +1,5 @@
 # vola-auto
-The ultimate streamline for Volatitlity 3. Speed up process of memory artifacts extraction phase
+The ultimate streamline for Volatility 3. Speed up process of memory artifacts extraction phase
 
 # Why this
 - Why this project is developed? I want to accelerate the artifacts extraction phase and combine automatic artifact analyzing strategy. Volatility 3 focuses on reading memory, vola-auto focuses on extracting & analyzing artifacts. 
