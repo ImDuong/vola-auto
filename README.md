@@ -2,7 +2,7 @@
 The ultimate streamline for Volatility 3. Speed up process of memory artifacts extraction phase
 
 # Why this
-- Why this project is developed? I want to accelerate the artifacts extraction phase and combine automatic artifact analyzing strategy. Volatility 3 focuses on reading memory, vola-auto focuses on extracting & analyzing artifacts. 
+- Why this project is developed? We want to accelerate the artifacts extraction phase and combine automatic artifact analyzing strategy. Volatility 3 focuses on reading memory, vola-auto focuses on extracting & analyzing artifacts. 
 - Why not a simple project using Volatility SDK? Frankly, Volatility 3 is written in Python, which makes the wrapper program should also be written in Python. And, vola-auto is not intended to replace Volatility 3, but rather become an extra flavor for researchers who had already installed and been familiar with one of the best memory forensic tools. On the other hand, with golang, it's easy to cross compile as standalone binaries for multiple OSes.
 
 # Features
@@ -15,6 +15,8 @@ The ultimate streamline for Volatility 3. Speed up process of memory artifacts e
 # Prerequisite
 - Python3
 - Volatility 3 (Vola-auto tested with Volatility 3 Framework 2.5.2 to 2.7.0)
+    - Our tool relies on Volatility 3, a memory forensics framework, for analyzing memory dumps. Users need to obtain Volatility 3 separately and comply with its licensing terms.
+    - **License**: Volatility 3 is licensed under the Volatility Software License Version 1.0. Please review the [Volatility Software License Version 1.0](https://www.volatilityfoundation.org/license/vsl-v1.0) for details on your obligations when obtaining and using Volatility 3.
 
 # Getting started
 ## Environment
@@ -67,3 +69,8 @@ The ultimate streamline for Volatility 3. Speed up process of memory artifacts e
     # windows
     SET DEBUG=1 && go run cmd\main.go -v <path_to_volatility3> -f <path_to_memory_dump>
     ```
+
+## Acknowledgments
+
+We would like to acknowledge the Volatility Foundation for developing Volatility 3, which our tool utilizes for memory forensics analysis.
+- Volatility Foundation. Volatility 3 [Computer software]. https://github.com/volatilityfoundation/volatility3
