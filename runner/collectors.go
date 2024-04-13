@@ -8,6 +8,7 @@ import (
 	"github.com/ImDuong/vola-auto/plugins/collectors/logfile"
 	"github.com/ImDuong/vola-auto/plugins/collectors/mft"
 	"github.com/ImDuong/vola-auto/plugins/collectors/prefetch"
+	"github.com/ImDuong/vola-auto/plugins/collectors/processes"
 	"github.com/ImDuong/vola-auto/plugins/collectors/sru"
 	"github.com/ImDuong/vola-auto/plugins/collectors/system32_config_hive"
 	"github.com/ImDuong/vola-auto/plugins/collectors/usnjrnl_j"
@@ -59,6 +60,7 @@ func runCollectorPlugins() error {
 		&sru.SRUPlugin{
 			WorkerPool: colPlgRunningPool,
 		},
+		&processes.TreePlugin{},
 	}
 
 	// empty file collector plugin to validate dumped folder
