@@ -61,6 +61,7 @@ func runCollectorPlugins() error {
 			WorkerPool: colPlgRunningPool,
 		},
 		&processes.TreePlugin{},
+		&processes.TimelinePlugin{},
 	}
 
 	// empty file collector plugin to validate dumped folder

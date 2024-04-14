@@ -1,11 +1,14 @@
 package datastore
 
+import "time"
+
 type (
 	Process struct {
-		ImageName  string
-		PID        uint
-		ParentProc *Process
-		Args       string
+		ImageName   string
+		PID         uint
+		ParentProc  *Process
+		Args        string
+		CreatedTime time.Time
 	}
 )
 

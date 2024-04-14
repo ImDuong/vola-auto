@@ -2,7 +2,6 @@ package collectors
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -21,7 +20,7 @@ type (
 )
 
 func (colp *ProcessesPlugin) GetName() string {
-	return "FILES COLLECTION PLUGIN"
+	return "PROCESSES COLLECTION PLUGIN"
 }
 
 func (colp *ProcessesPlugin) GetArtifactsCollectionPath() string {
@@ -62,7 +61,8 @@ func (colp *ProcessesPlugin) Run() error {
 
 		parsedPID, err := strconv.Atoi(parts[0])
 		if err != nil {
-			return fmt.Errorf("parse pid %s failed", parts[0])
+			utils.Logger.Warn("parse pid failed", zap.String("pid", parts[0]), zap.String("plugin", colp.GetName()), zap.Error(err))
+			continue
 		}
 
 		// TODO: handle process name have spaces
@@ -112,19 +112,22 @@ func (colp *ProcessesPlugin) Run() error {
 
 		parsedPID, err := strconv.Atoi(parts[0])
 		if err != nil {
-			return fmt.Errorf("parse pid %s failed", parts[0])
+			utils.Logger.Warn("parse pid failed", zap.String("pid", parts[0]), zap.String("plugin", colp.GetName()), zap.Error(err))
+			continue
 		}
 
 		parsedPPID, err := strconv.Atoi(parts[1])
 		if err != nil {
-			return fmt.Errorf("parse ppid %s failed", parts[1])
+			utils.Logger.Warn("parse ppid failed", zap.String("ppid", parts[1]), zap.String("plugin", colp.GetName()), zap.Error(err))
+			continue
 		}
 
 		if _, ok := datastore.PIDToProcess[uint(parsedPID)]; !ok {
+			utils.Logger.Warn("pid not found in current datastore", zap.Int("pid", parsedPID), zap.String("plugin", colp.GetName()))
 			continue
 		}
 		if _, ok := datastore.PIDToProcess[uint(parsedPPID)]; !ok {
-			continue
+			datastore.PIDToProcess[uint(parsedPPID)] = &datastore.Process{PID: uint(parsedPPID)}
 		}
 
 		datastore.PIDToProcess[uint(parsedPID)].ParentProc = datastore.PIDToProcess[uint(parsedPPID)]

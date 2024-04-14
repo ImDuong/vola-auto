@@ -9,21 +9,23 @@ import (
 
 	"github.com/ImDuong/vola-auto/config"
 	"github.com/ImDuong/vola-auto/datastore"
-	"github.com/alitto/pond"
 )
 
 type (
 	TreePlugin struct {
-		WorkerPool *pond.WorkerPool
 	}
 )
 
+const (
+	ProcessCollectionFolderName = "processes"
+)
+
 func (colp *TreePlugin) GetName() string {
-	return "PREFETCH COLLECTION PLUGIN"
+	return "PROCESS TREE COLLECTION PLUGIN"
 }
 
 func (colp *TreePlugin) GetArtifactsCollectionPath() string {
-	return filepath.Join(config.Default.OutputFolder, "processes")
+	return filepath.Join(config.Default.OutputFolder, ProcessCollectionFolderName)
 }
 
 func (colp *TreePlugin) GetArtifactsCollectionOutputFilepath() string {
@@ -56,6 +58,7 @@ func (colp *TreePlugin) Run() error {
 	if err != nil {
 		return err
 	}
+	defer treeFileWriter.Close()
 
 	var roots datastore.ProcessByPID
 	for _, process := range datastore.PIDToProcess {
