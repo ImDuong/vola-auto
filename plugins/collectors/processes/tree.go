@@ -25,11 +25,11 @@ func (colp *TreePlugin) GetName() string {
 }
 
 func (colp *TreePlugin) GetArtifactsCollectionPath() string {
-	return filepath.Join(config.Default.OutputFolder, ProcessCollectionFolderName)
+	return filepath.Join(colp.GetArtifactsCollectionFolderpath(), "tree.txt")
 }
 
-func (colp *TreePlugin) GetArtifactsCollectionOutputFilepath() string {
-	return filepath.Join(colp.GetArtifactsCollectionPath(), "tree.txt")
+func (colp *TreePlugin) GetArtifactsCollectionFolderpath() string {
+	return filepath.Join(config.Default.OutputFolder, ProcessCollectionFolderName)
 }
 
 func (colp *TreePlugin) printTreeToFile(process *datastore.Process, depth int, outputFile *os.File) {
@@ -49,12 +49,12 @@ func (colp *TreePlugin) printTreeToFile(process *datastore.Process, depth int, o
 
 // print out process tree
 func (colp *TreePlugin) Run() error {
-	err := os.MkdirAll(colp.GetArtifactsCollectionPath(), 0755)
+	err := os.MkdirAll(colp.GetArtifactsCollectionFolderpath(), 0755)
 	if err != nil {
 		return err
 	}
 
-	treeFileWriter, err := os.OpenFile(colp.GetArtifactsCollectionOutputFilepath(), os.O_CREATE|os.O_WRONLY, 0644)
+	treeFileWriter, err := os.OpenFile(colp.GetArtifactsCollectionPath(), os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}

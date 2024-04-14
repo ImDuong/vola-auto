@@ -28,16 +28,16 @@ func (colp *TimelinePlugin) GetName() string {
 }
 
 func (colp *TimelinePlugin) GetArtifactsCollectionPath() string {
-	return filepath.Join(config.Default.OutputFolder, ProcessCollectionFolderName)
+	return filepath.Join(colp.GetArtifactsCollectionFolderpath(), "timeline.txt")
 }
 
-func (colp *TimelinePlugin) GetArtifactsCollectionOutputFilepath() string {
-	return filepath.Join(colp.GetArtifactsCollectionPath(), "timeline.txt")
+func (colp *TimelinePlugin) GetArtifactsCollectionFolderpath() string {
+	return filepath.Join(config.Default.OutputFolder, ProcessCollectionFolderName)
 }
 
 // print out process tree
 func (colp *TimelinePlugin) Run() error {
-	err := os.MkdirAll(colp.GetArtifactsCollectionPath(), 0755)
+	err := os.MkdirAll(colp.GetArtifactsCollectionFolderpath(), 0755)
 	if err != nil {
 		return err
 	}
@@ -72,7 +72,7 @@ func (colp *TimelinePlugin) Run() error {
 		}
 
 		// TODO: handle process name have spaces
-		createdTime := parts[8] + parts[9]
+		createdTime := parts[8] + " " + parts[9]
 
 		parsedPID, err := strconv.Atoi(parts[0])
 		if err != nil {
@@ -99,7 +99,7 @@ func (colp *TimelinePlugin) Run() error {
 		utils.Logger.Warn("Constructing process relations", zap.String("plugin", colp.GetName()), zap.Error(err))
 	}
 
-	timelineFileWriter, err := os.OpenFile(colp.GetArtifactsCollectionOutputFilepath(), os.O_CREATE|os.O_WRONLY, 0644)
+	timelineFileWriter, err := os.OpenFile(colp.GetArtifactsCollectionPath(), os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}

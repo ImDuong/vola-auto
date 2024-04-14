@@ -161,7 +161,16 @@ func (colp *FilesPlugin) RenameDumpedFilesExtention(matchSuffix, newSuffix, outp
 	})
 }
 
-func (colp *FilesPlugin) ValidateDumpedFolder(dumpedFolder string) error {
+func (colp *FilesPlugin) ValidateDumpedFiles(dumpedFolder string) error {
+	fileInfo, err := os.Stat(dumpedFolder)
+	if os.IsNotExist(err) {
+		return fmt.Errorf("folder %s not exists: %w", dumpedFolder, err)
+	}
+
+	if !fileInfo.IsDir() {
+		return nil
+	}
+
 	f, err := os.Open(dumpedFolder)
 	if err != nil {
 		return err

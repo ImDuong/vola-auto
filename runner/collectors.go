@@ -82,7 +82,7 @@ func runCollectorPlugins() error {
 				return
 			}
 
-			err = filePlg.ValidateDumpedFolder(copiedPlg.GetArtifactsCollectionPath())
+			err = filePlg.ValidateDumpedFiles(copiedPlg.GetArtifactsCollectionPath())
 			if err != nil {
 				utils.Logger.Error("Validate dumped folder", zap.String("plugin", copiedPlg.GetName()), zap.Error(err))
 				return
