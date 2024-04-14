@@ -107,6 +107,7 @@ func (colp *TimelinePlugin) Run() error {
 
 	writer := csv.NewWriter(timelineFileWriter)
 	defer writer.Flush()
+	writer.Comma = ' '
 
 	if err := writer.Write([]string{"CreatedTime", "PID", "ImageFileName", "Args"}); err != nil {
 		return fmt.Errorf("write header to CSV failed: %w", err)
@@ -124,7 +125,12 @@ func (colp *TimelinePlugin) Run() error {
 	})
 
 	for _, p := range tempProcList {
-		record := []string{p.CreatedTime.String(), strconv.Itoa(int(p.PID)), p.ImageName, p.Args}
+		record := []string{
+			fmt.Sprintf("%-29s", p.CreatedTime.String()),
+			fmt.Sprintf("%-7d", p.PID),
+			fmt.Sprintf("%-25s", p.ImageName),
+			p.Args,
+		}
 		if err := writer.Write(record); err != nil {
 			return err
 		}
