@@ -6,6 +6,7 @@ import (
 	"github.com/ImDuong/vola-auto/plugins/volatility/filescan"
 	"github.com/ImDuong/vola-auto/plugins/volatility/help"
 	"github.com/ImDuong/vola-auto/plugins/volatility/hivelist"
+	"github.com/ImDuong/vola-auto/plugins/volatility/iat"
 	"github.com/ImDuong/vola-auto/plugins/volatility/info"
 	"github.com/ImDuong/vola-auto/plugins/volatility/lsadump"
 	"github.com/ImDuong/vola-auto/plugins/volatility/mft"
@@ -53,6 +54,7 @@ func runVolatilityPlugins() error {
 		&hivelist.HivelistPlugin{},
 		&lsadump.LsadumpPlugin{},
 		&mft.MFTAdsPlugin{},
+		&iat.IATPlugin{},
 	}
 
 	volPlgRunningPool := pond.New(10, 20)
