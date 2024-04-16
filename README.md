@@ -24,10 +24,10 @@ The ultimate streamline for Volatility 3. Speed up process of memory artifacts e
 - If running golang code directly, install go modules first with `go install`
 
 ## Auto Streamline
-- Run Volatility 3 auto streamline with 
+- Run Volatility 3 auto streamline with `--vol` pointing to volatility 3 folder, and `--file or -f` pointing to memory dump file
 
     ```
-    go run cmd\main.go -v <path_to_volatility3> -f <path_to_memory_dump> -o <output_folder>
+    go run cmd\main.go --vol <path_to_volatility3> -f <path_to_memory_dump> -o <output_folder>
     ```
 
     - if `-o` is not specified, vola-auto will generate folder `artifacts` in folder containing `path_to_memory_dump`
@@ -36,14 +36,14 @@ The ultimate streamline for Volatility 3. Speed up process of memory artifacts e
 - To dump files with regex, use subcommand `dumpfiles` with `-reg` flag to pass regex.
 
     ```
-    go run cmd\main.go -v <path_to_volatility3> -f <path_to_memory_dump> -o <output_folder> dumpfiles -reg "SCHEDLGU\.TXT$"
+    go run cmd\main.go --vol <path_to_volatility3> -f <path_to_memory_dump> -o <output_folder> dumpfiles -reg "SCHEDLGU\.TXT$"
     ```
 
     - if `output_folder` does not contain filescan.txt (output file of filescan plugin) yet, vola-auto will run filescan plugin first to write `filescan.txt`, then starting to dump files
     - To specify a specific `filescan.txt`, use `-fs` flag
 
         ```
-        go run cmd\main.go -v <path_to_volatility3> -f <path_to_memory_dump> -o <output_folder> dumpfiles -reg "SCHEDLGU\.TXT$" -fs <path_to_filescan.txt>
+        go run cmd\main.go --vol <path_to_volatility3> -f <path_to_memory_dump> -o <output_folder> dumpfiles -reg "SCHEDLGU\.TXT$" -fs <path_to_filescan.txt>
         ```
 
 ## Execute batch of commands parallely
@@ -57,7 +57,7 @@ The ultimate streamline for Volatility 3. Speed up process of memory artifacts e
 - Use subcommand `batch`
 
     ```
-    go run cmd\main.go -v <path_to_volatility3> -f <path_to_memory_dump> -o <output_folder> batch -f <path_to_command_file>
+    go run cmd\main.go --vol <path_to_volatility3> -f <path_to_memory_dump> -o <output_folder> batch -f <path_to_command_file>
     ```
 
     - Results of command will be logged to files in `temp` folder inside `output_folder`
@@ -67,7 +67,7 @@ The ultimate streamline for Volatility 3. Speed up process of memory artifacts e
 
     ```
     # windows
-    SET DEBUG=1 && go run cmd\main.go -v <path_to_volatility3> -f <path_to_memory_dump>
+    SET DEBUG=1 && go run cmd\main.go --vol <path_to_volatility3> -f <path_to_memory_dump>
     ```
 
 ## Acknowledgments
