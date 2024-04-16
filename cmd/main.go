@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/ImDuong/vola-auto/build"
 	"github.com/ImDuong/vola-auto/config"
 	"github.com/ImDuong/vola-auto/plugins"
 	"github.com/ImDuong/vola-auto/plugins/collectors"
@@ -31,6 +32,7 @@ func main() {
 		Name:  AppName,
 		Usage: "Auto streamline for Volatility 3",
 		Commands: []*cli.Command{
+			versionCommand,
 			{
 				Name:    "dumpfiles",
 				Aliases: []string{"d"},
@@ -197,10 +199,6 @@ func main() {
 				Name:    "output",
 				Aliases: []string{"o"},
 				Usage:   "Path to output folder. If empty, output folder is set to artifacts folder in path having memory dump file",
-				Action: func(ctx context.Context, c *cli.Command, s string) error {
-
-					return nil
-				},
 			},
 			&cli.BoolFlag{
 				Name:    "rerun",
@@ -221,6 +219,9 @@ func main() {
 				return fmt.Errorf("volatility 2 is not supported yet")
 			}
 			config.Default.VolRunConfig.Runner = pythonRunner
+
+			utils.Logger.Info(c.Name + build.Version + " - " + build.Commit)
+			utils.Logger.Info(c.Usage)
 			return nil
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
@@ -244,4 +245,14 @@ func main() {
 	if err := cmd.Run(context.Background(), os.Args); err != nil {
 		log.Fatal(err)
 	}
+}
+
+var versionCommand = &cli.Command{
+	Name:  "version",
+	Usage: "Get version",
+	Action: func(ctx context.Context, cmd *cli.Command) error {
+		fmt.Println(AppName + build.Version)
+		fmt.Println("commit - " + build.Commit)
+		return nil
+	},
 }
