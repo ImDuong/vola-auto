@@ -47,6 +47,7 @@ func runVolatilityPlugins() error {
 		&process.ProcessPsListPlugin{},
 		&process.ProcessPsScanPlugin{},
 		&process.ProcessPsTreePlugin{},
+		&process.ProcessHandlesPlugin{},
 		&envars.EnvarsPlugin{},
 		&pe_version.PEVersionPlugin{},
 		&filescan.FilescanPlugin{},

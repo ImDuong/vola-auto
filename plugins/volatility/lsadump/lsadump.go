@@ -37,5 +37,11 @@ func (volp *LsadumpPlugin) Run() error {
 	if err != nil {
 		return err
 	}
+
+	args = []string{"windows.hashdump.Hashdump"}
+	err = plugins.RunVolatilityPluginAndWriteResult(args, volp.GetArtifactsExtractionPath(), false)
+	if err != nil {
+		return err
+	}
 	return nil
 }

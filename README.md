@@ -40,7 +40,7 @@ The ultimate streamline for Volatility 3. Speed up process of memory artifacts e
     ```
 
     - if `output_folder` does not contain filescan.txt (output file of filescan plugin) yet, vola-auto will run filescan plugin first to write `filescan.txt`, then starting to dump files
-    - To specify a specific `filescan.txt`, use `-fs` flag
+    - To specify a specific location for `filescan.txt`, use `-fs` flag
 
         ```
         go run cmd\main.go --vol <path_to_volatility3> -f <path_to_memory_dump> -o <output_folder> dumpfiles -reg "SCHEDLGU\.TXT$" -fs <path_to_filescan.txt>
