@@ -137,8 +137,10 @@ func main() {
 
 			err := beeep.Notify(AppName, "Streamline Completed", "")
 			if err != nil {
-				panic(err)
+				utils.Logger.Warn("push toast notification failed", zap.Error(err))
 			}
+
+			utils.Logger.Info(AppName + " completed")
 			return nil
 		},
 	}

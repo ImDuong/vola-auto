@@ -5,12 +5,53 @@ The ultimate streamline for Volatility 3. Speed up process of memory artifacts e
 - Why this project is developed? We want to accelerate the artifacts extraction phase and combine automatic artifact analyzing strategy. Volatility 3 focuses on reading memory, vola-auto focuses on extracting & analyzing artifacts. 
 - Why not a simple project using Volatility SDK? Frankly, Volatility 3 is written in Python, which makes the wrapper program should also be written in Python. And, vola-auto is not intended to replace Volatility 3, but rather become an extra flavor for researchers who had already installed and been familiar with one of the best memory forensic tools. On the other hand, with golang, it's easy to cross compile as standalone binaries for multiple OSes.
 
-# Features
-1. Auto run common plugins: info, filescan, process, etc. Auto dump common artifacts file: MFT, Logfile, prefetch, etc. Auto run customized artifacts analytics
-2. Add regex for dumping files (currently Vol3 does not support it, which is different from Vol2)
-3. Run multiple commands parallelly from a file
+# What Vola-auto can do
+## Main Features
+1. Auto run common plugins: info, filescan, process, etc., parallely. Auto dump common artifacts file: MFT, Logfile, prefetch, etc. Auto run customized artifacts analytics.
+2. Add regex for dumping files (currently Volatility 3 does not support it, which is different from Volatility 2).
+3. Run multiple commands parallelly from a file with subcommand `batch`.
 
-- Note: just support Vol3 and Windows yet
+## Feature List of auto streamline
+|                       | Status |
+| --------------------- | ------- |
+| VOLATILITY PLUGINS |  |
+| common plugins: info, filescan, netstat, envars, hivelist, iat, mft ads, lsadump       | ✅     |
+| process plugins: cmdline, pslist, psscan, pstree, handles       | ✅     |
+| plugins not mentioned here can be run parallely with subcommand `batch`       |   ✅   |
+| support Volatility 2 plugins       |   ☑️   |
+| ARTIFACTS COLLECTOR PLUGINS |  |
+| dump $MFT      | ✅     |
+| dump $LogFile      | ✅     |
+| dump $UsnJrnl:$J      | ✅     |
+| dump prefetch files      | ✅     |
+| dump event log files (evtx)      | ✅     |
+| dump amcache hive      | ✅     |
+| dump SRU files      | ✅     |
+| dump SYSTEM, SAM, SECURITY, SOFTWARE hives       | ✅     |
+| construct better visualization for process tree        | ✅     |
+| construct timeline for process list        | ✅     |
+| construct better netstat for processes        | ☑️     |
+| construct folder structure for entire machine        | ☑️     |
+| dump artifacts for Edge browser        | ☑️     |
+| dump artifacts for Chrome browser        | ☑️     |
+| dump artifacts for Firefox browser        | ☑️     |
+| dump artifacts for Safari browser        | ☑️     |
+| dump artifacts for IE browser        | ☑️     |
+| dump artifacts for Windows Defender        | ☑️     |
+| dump artifacts for important registries        | ☑️     |
+| dump suspicious files in startup, desktop, downloads        | ☑️     |
+| ARTIFACTS ANALYTICS PLUGINS |  |
+| find weird environment variables of processes        | ✅     |
+| map process behaviors based on evtx        | ☑️     |
+| auto check signature of executables and dlls          | ☑️     |
+
+
+Where:
+✅: Completed      ☑️: TODO
+
+## Environment
+- Could build & run vola-auto on Windows, Linux, macOS
+- Currently support Volatility 3's Windows plugins
 
 # Prerequisite
 - Python3
