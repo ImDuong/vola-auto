@@ -50,6 +50,10 @@ func (colp *MFTPlugin) Run() error {
 	if err != nil {
 		return err
 	}
+	err = filePlg.RenameDumpedFilesExtention(".img", "", colp.GetArtifactsCollectionPath())
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

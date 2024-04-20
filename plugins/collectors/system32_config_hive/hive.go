@@ -59,6 +59,12 @@ func (colp *HivePlugin) Run() error {
 			utils.Logger.Warn("Rename files", zap.String("plugin", colp.GetName()), zap.String("output", colp.GetArtifactsCollectionPath()), zap.Error(err))
 			continue
 		}
+
+		err = filePlg.RenameDumpedFilesExtention(".vacb", "", colp.GetArtifactsCollectionPath())
+		if err != nil {
+			utils.Logger.Warn("Rename files", zap.String("plugin", colp.GetName()), zap.String("output", colp.GetArtifactsCollectionPath()), zap.Error(err))
+			continue
+		}
 	}
 
 	return nil

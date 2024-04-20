@@ -43,6 +43,8 @@ func runVolatilityPlugins() error {
 	volPlgs := []plugins.VolPlugin{
 		&help.HelpPlugin{},
 		&info.InfoPlugin{},
+		&mft.MFTScanPlugin{},
+		&mft.MFTAdsPlugin{},
 		&process.ProcessCmdlinePlugin{},
 		&process.ProcessPsListPlugin{},
 		&process.ProcessPsScanPlugin{},
@@ -54,7 +56,6 @@ func runVolatilityPlugins() error {
 		&netstat.NetstatPlugin{},
 		&hivelist.HivelistPlugin{},
 		&lsadump.LsadumpPlugin{},
-		&mft.MFTAdsPlugin{},
 		&iat.IATPlugin{},
 	}
 
