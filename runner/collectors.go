@@ -7,6 +7,7 @@ import (
 	"github.com/ImDuong/vola-auto/plugins/collectors/eventlogs"
 	"github.com/ImDuong/vola-auto/plugins/collectors/logfile"
 	"github.com/ImDuong/vola-auto/plugins/collectors/mft"
+	"github.com/ImDuong/vola-auto/plugins/collectors/notifications"
 	"github.com/ImDuong/vola-auto/plugins/collectors/prefetch"
 	"github.com/ImDuong/vola-auto/plugins/collectors/processes"
 	"github.com/ImDuong/vola-auto/plugins/collectors/sru"
@@ -58,6 +59,9 @@ func runCollectorPlugins() error {
 			WorkerPool: colPlgRunningPool,
 		},
 		&sru.SRUPlugin{
+			WorkerPool: colPlgRunningPool,
+		},
+		&notifications.NotificationsPlugin{
 			WorkerPool: colPlgRunningPool,
 		},
 		&processes.TreePlugin{},

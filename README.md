@@ -28,6 +28,7 @@ The ultimate streamline for Volatility 3. Speed up process of memory artifacts e
 | dump amcache hive      | ✅     |
 | dump SRU files      | ✅     |
 | dump SYSTEM, SAM, SECURITY, SOFTWARE hives       | ✅     |
+| dump NTUSER.dat       | ☑️     |
 | construct better visualization for process tree        | ✅     |
 | construct timeline for process list        | ✅     |
 | construct better netstat for processes        | ☑️     |
