@@ -74,7 +74,7 @@ Where:
     go run cmd\main.go --vol <path_to_volatility3> -f <path_to_memory_dump> -o <output_folder>
     ```
 
-    - if `-o` is not specified, vola-auto will generate folder `artifacts` in folder containing `path_to_memory_dump`
+    - By default (also means when `-o` is not specified), vola-auto will generate folder `artifacts` in folder containing `path_to_memory_dump`
 
 ## Dump files with regex
 - To dump files with regex, use subcommand `dumpfiles` with `-reg` flag to pass regex.
@@ -82,8 +82,9 @@ Where:
     ```
     go run cmd\main.go --vol <path_to_volatility3> -f <path_to_memory_dump> -o <output_folder> dumpfiles -reg "SCHEDLGU\.TXT$"
     ```
+    - The dumped files will be stored in `1_dump_files` folder inside `output_folder`
 
-    - if `output_folder` does not contain filescan.txt (output file of filescan plugin) yet, vola-auto will run filescan plugin first to write `filescan.txt`, then starting to dump files
+    - Note: If `output_folder` does not contain filescan.txt (output file of filescan plugin) yet, vola-auto will run filescan plugin first to write `filescan.txt`, then starting to dump files
     - To specify a specific location for `filescan.txt`, use `-fs` flag
 
         ```

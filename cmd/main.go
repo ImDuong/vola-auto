@@ -178,9 +178,6 @@ var dumpFileByRegexCommand = &cli.Command{
 		var err error
 		filescanResultPath := cmd.String("filescan")
 
-		// backup output folder path to store new output folder for running filescan plugin
-		backupOutputPath := config.Default.OutputFolder
-
 		filescanPlg := filescan.FilescanPlugin{}
 		fileCollectorPlg := collectors.FilesPlugin{}
 		if len(filescanResultPath) == 0 {
@@ -211,9 +208,6 @@ var dumpFileByRegexCommand = &cli.Command{
 		// construct file lists
 		fileCollectorPlg.Run()
 
-		// restore original output folder path for dumping files
-		config.Default.OutputFolder = backupOutputPath
-
 		foundFiles, err := fileCollectorPlg.FindFilesByRegex(cmd.String("regex"))
 		if err != nil {
 			return err
@@ -225,7 +219,7 @@ var dumpFileByRegexCommand = &cli.Command{
 		for i := range foundFiles {
 			copiedIdx := i
 			dumpFilesPool.Submit(func() {
-				err := fileCollectorPlg.DumpFile(foundFiles[copiedIdx], config.Default.OutputFolder)
+				err := fileCollectorPlg.DumpFile(foundFiles[copiedIdx], config.Default.DumpFilesFolder)
 				if err != nil {
 					aggregateErrorMutex.Lock()
 					aggregatedError = fmt.Errorf("%w;%w", aggregatedError, err)
@@ -270,6 +264,7 @@ var batchExecuteCommand = &cli.Command{
 			line := strings.TrimSpace(scanner.Text())
 			commandArgs := strings.Split(line, " ")
 			args := []string{config.Default.VolRunConfig.Binary,
+				"-q",
 				"-f", config.Default.MemoryDumpPath,
 			}
 			args = append(args, commandArgs...)
