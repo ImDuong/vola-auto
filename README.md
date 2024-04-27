@@ -15,7 +15,7 @@ The ultimate streamline for Volatility 3. Speed up process of memory artifacts e
 |                       | Status |
 | --------------------- | ------- |
 | VOLATILITY PLUGINS |  |
-| common plugins: info, filescan, netstat, envars, hivelist, iat, mft ads, lsadump       | ✅     |
+| common plugins: info, filescan, netstat, envars, hivelist, iat, mft scan, mft ads, lsadump       | ✅     |
 | process plugins: cmdline, pslist, psscan, pstree, handles       | ✅     |
 | plugins not mentioned here can be run parallely with subcommand `batch`       |   ✅   |
 | support Volatility 2 plugins       |   ☑️   |
@@ -27,8 +27,10 @@ The ultimate streamline for Volatility 3. Speed up process of memory artifacts e
 | dump event log files (evtx)      | ✅     |
 | dump amcache hive      | ✅     |
 | dump SRU files      | ✅     |
+| dump ActivitiesCache.db      | ☑️     |
 | dump SYSTEM, SAM, SECURITY, SOFTWARE hives       | ✅     |
 | dump NTUSER.dat       | ☑️     |
+| dump wpndatabase.db for Windows notification       | ✅     |
 | construct better visualization for process tree        | ✅     |
 | construct timeline for process list        | ✅     |
 | construct better netstat for processes        | ☑️     |
@@ -102,7 +104,7 @@ Where:
     go run cmd\main.go --vol <path_to_volatility3> -f <path_to_memory_dump> -o <output_folder> batch -f <path_to_command_file>
     ```
 
-    - Results of command will be logged to files in `temp` folder inside `output_folder`
+    - Results of command will be logged to files in `2_batch_cmd_results` folder inside `output_folder`
 
 # Tips
 - To run vola-auto in verbose mode, run the program with environment variable `DEBUG` having value as `1`

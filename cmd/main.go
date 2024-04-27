@@ -62,23 +62,23 @@ func main() {
 					config.Default.OutputFolder = c.String("output")
 
 					if len(config.Default.OutputFolder) == 0 {
-						config.Default.OutputFolder = filepath.Join(filepath.Dir(config.Default.MemoryDumpPath), "artifacts")
+						config.Default.OutputFolder = filepath.Join(filepath.Dir(config.Default.MemoryDumpPath), config.DefaultArtifactFolderName)
 					}
-					config.Default.AnalyticFolder = filepath.Join(config.Default.OutputFolder, "0_analytics")
-					config.Default.DumpFilesFolder = filepath.Join(config.Default.OutputFolder, "1_dump_files")
+					config.Default.AnalyticFolder = filepath.Join(config.Default.OutputFolder, config.AnalyticsFoldername)
+					config.Default.DumpFilesFolder = filepath.Join(config.Default.OutputFolder, config.DumpFilesFoldername)
 					err := os.MkdirAll(config.Default.OutputFolder, 0755)
 					if err != nil {
-						return fmt.Errorf("error creating output folder: %w", err)
+						return fmt.Errorf("creating output folder failed: %w", err)
 					}
 
 					err = os.MkdirAll(config.Default.DumpFilesFolder, 0755)
 					if err != nil {
-						return fmt.Errorf("error creating dump files folder: %w", err)
+						return fmt.Errorf("creating dump files folder failed: %w", err)
 					}
 
 					err = os.MkdirAll(config.Default.AnalyticFolder, 0755)
 					if err != nil {
-						return fmt.Errorf("error creating analytic folder: %w", err)
+						return fmt.Errorf("creating analytic folder failed: %w", err)
 					}
 					return nil
 				},
@@ -101,7 +101,7 @@ func main() {
 		Before: func(ctx context.Context, c *cli.Command) error {
 			pythonRunner, pythonVersion, err := utils.GetPythonRunner()
 			if err != nil {
-				return fmt.Errorf("error when getting python version")
+				return fmt.Errorf("getting python version failed: %w", err)
 			}
 			if len(pythonVersion) > 2 && pythonVersion[0] == '2' {
 				return fmt.Errorf("volatility 2 is not supported yet")
@@ -252,6 +252,12 @@ var batchExecuteCommand = &cli.Command{
 		},
 	},
 	Action: func(ctx context.Context, cmd *cli.Command) error {
+		config.Default.BatchCmdFolder = filepath.Join(config.Default.OutputFolder, config.BatchCmdResultFilename)
+		err := os.MkdirAll(config.Default.BatchCmdFolder, 0755)
+		if err != nil {
+			return fmt.Errorf("creating %s folder failed: %w", config.Default.BatchCmdFolder, err)
+		}
+
 		commandFile, err := os.Open(cmd.String("file"))
 		if err != nil {
 			return err

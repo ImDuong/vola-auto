@@ -80,28 +80,28 @@ func RunVolatilityPluginAndWriteResult(args []string, resultFilepath string, isO
 
 	// allow caller to skip passing common flags when needed
 	if len(args) > 0 && !strings.EqualFold(args[0], config.Default.VolRunConfig.Binary) {
-		args = append([]string{config.Default.VolRunConfig.Binary, "-f", config.Default.MemoryDumpPath}, args...)
+		args = append([]string{config.Default.VolRunConfig.Binary, "-q", "-f", config.Default.MemoryDumpPath}, args...)
 	}
 
 	cmd := exec.Command(config.Default.VolRunConfig.Runner, args...)
+	cmdLogging := utils.Logger.Debug
 	if !isDumpingFile {
 		if len(resultFilepath) == 0 {
-			err := os.MkdirAll(filepath.Join(config.Default.OutputFolder, "temp"), 0755)
-			if err != nil {
-				return fmt.Errorf("error creating temp folder: %w", err)
-			}
-			resultFilepath = filepath.Join(config.Default.OutputFolder, "temp", uuid.New().String()[:8]+".txt")
+			resultFilepath = filepath.Join(config.Default.BatchCmdFolder, uuid.New().String()[:8]+".txt")
+
+			// log args with info level when running batch commands
+			cmdLogging = utils.Logger.Info
 		}
 		outputFileWriter, err := os.OpenFile(resultFilepath, GetFileOpenFlag(isOverride), 0644)
 		if err != nil {
-			return err
+			return fmt.Errorf("opening %s failed: %w", resultFilepath, err)
 		}
 		defer outputFileWriter.Close()
 		cmd.Stdout = outputFileWriter
 		cmd.Stderr = outputFileWriter
 	}
 
-	utils.Logger.Debug("Executing", zap.String("cmd", strings.Join(cmd.Args, " ")), zap.String("output", resultFilepath))
+	cmdLogging("Executing", zap.String("cmd", strings.Join(cmd.Args, " ")), zap.String("output", resultFilepath))
 	err := cmd.Run()
 	if err != nil {
 		return err
