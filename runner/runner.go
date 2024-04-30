@@ -40,9 +40,14 @@ func RunPlugins() error {
 }
 
 func runVolatilityPlugins() error {
+	firstPlg := &info.InfoPlugin{}
+	err := firstPlg.Run()
+	if err != nil {
+		utils.Logger.Error("Running", zap.String("plugin", firstPlg.GetName()), zap.Error(err))
+		return err
+	}
 	volPlgs := []plugins.VolPlugin{
 		&help.HelpPlugin{},
-		&info.InfoPlugin{},
 		&mft.MFTScanPlugin{},
 		&mft.MFTAdsPlugin{},
 		&process.ProcessCmdlinePlugin{},

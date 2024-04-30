@@ -39,10 +39,6 @@ func main() {
 			batchExecuteCommand,
 		},
 		Flags: []cli.Flag{
-			&cli.BoolFlag{
-				Name:    "version",
-				Aliases: []string{"v"},
-			},
 			&cli.StringFlag{
 				Name:       "vol",
 				Usage:      "Path to Volatility 3",
@@ -110,10 +106,6 @@ func main() {
 			return nil
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
-			if cmd.Bool("version") {
-				return versionCommand.Action(ctx, cmd)
-			}
-
 			// Explicit check without using cli's builtin Required option.
 			// Otherwise, required fields will break the version subcommand
 			if len(cmd.String("vol")) == 0 {
@@ -154,7 +146,7 @@ var versionCommand = &cli.Command{
 	Name:  "version",
 	Usage: "Get version",
 	Action: func(ctx context.Context, cmd *cli.Command) error {
-		fmt.Println(AppName + build.Version)
+		fmt.Println(AppName + " " + build.Version)
 		return nil
 	},
 }
