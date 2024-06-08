@@ -75,6 +75,7 @@ func (colp *ProcessesPlugin) Run() error {
 			proc.Args = strings.Join(parts[2:], " ")
 		}
 
+		proc.ParseFullPathByArgs()
 		datastore.PIDToProcess[proc.PID] = &proc
 	}
 
