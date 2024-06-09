@@ -55,6 +55,14 @@ func (nc *NetworkConnection) getSocketAddr(ipAddr string, port uint) string {
 	return fmt.Sprintf("%s:%d", ipAddr, port)
 }
 
+func (nc *NetworkConnection) GetCreatedTimeAsStr() string {
+	var createdTime string = "N/A"
+	if !nc.CreatedTime.IsZero() {
+		createdTime = nc.CreatedTime.Format(time.DateTime)
+	}
+	return createdTime
+}
+
 func IsValidTCPConnectionState(checkingState string) bool {
 	if len(checkingState) == 0 {
 		return false

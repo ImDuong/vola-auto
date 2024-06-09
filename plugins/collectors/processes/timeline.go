@@ -35,7 +35,7 @@ func (colp *TimelinePlugin) GetArtifactsCollectionFolderpath() string {
 	return filepath.Join(config.Default.OutputFolder, ProcessCollectionFolderName)
 }
 
-// print out process tree
+// Run() collects created time from pslist plugin, and writes out under csv format
 func (colp *TimelinePlugin) Run() error {
 	err := os.MkdirAll(colp.GetArtifactsCollectionFolderpath(), 0755)
 	if err != nil {

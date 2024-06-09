@@ -46,3 +46,10 @@ func (p *Process) ParseFullPathByArgs() {
 		}
 	}
 }
+
+func (p *Process) GetCmdline() string {
+	if len(p.Args) == 0 {
+		return p.FullPath
+	}
+	return p.Args
+}

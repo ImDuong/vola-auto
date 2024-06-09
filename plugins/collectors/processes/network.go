@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/ImDuong/vola-auto/config"
 	"github.com/ImDuong/vola-auto/datastore"
@@ -40,7 +39,7 @@ func (colp *NetworkPlugin) Run() error {
 	// group processes by process path
 	procGroupedByPath := colp.groupProcessByPath()
 
-	networkFileWriter, err := os.OpenFile(colp.GetArtifactsCollectionPath(), os.O_CREATE|os.O_WRONLY, 0644)
+	networkFileWriter, err := os.OpenFile(colp.GetArtifactsCollectionPath(), os.O_CREATE|os.O_WRONLY, 0755)
 	if err != nil {
 		return err
 	}
@@ -54,15 +53,7 @@ func (colp *NetworkPlugin) Run() error {
 
 	networkFileWriter.Write([]byte("\nMissing Information Network Connection\n"))
 	for i := range datastore.MissingInfoNetworkConnection {
-		networkFileWriter.Write([]byte(
-			fmt.Sprintf(
-				"\t\t%s - %s - %s => %s\n",
-				datastore.MissingInfoNetworkConnection[i].Protocol,
-				datastore.MissingInfoNetworkConnection[i].State,
-				datastore.MissingInfoNetworkConnection[i].GetLocalSocketAddr(),
-				datastore.MissingInfoNetworkConnection[i].GetForeignSocketAddr(),
-			),
-		))
+		networkFileWriter.Write([]byte(getFormattedDataForMissingInfoConnection(datastore.MissingInfoNetworkConnection[i])))
 	}
 
 	return nil
@@ -95,28 +86,21 @@ func (colp *NetworkPlugin) getFormattedDataForProcessGroup(processPath string, p
 		if process.Conn == nil {
 			continue
 		}
+
 		if !isNetConnAvail {
 			// write only once to the start of the string
 			result.WriteString(processPath + "\n")
 			isNetConnAvail = true
 		}
-		procInfo := process.Args
-		if len(strings.TrimSpace(procInfo)) == 0 {
-			procInfo = process.FullPath
-		}
-		result.WriteString(fmt.Sprintf("\tPID: %-4d - %s\n", process.PID, procInfo))
 
-		var createdTime string = ""
-		if !process.Conn.CreatedTime.IsZero() {
-			createdTime = process.Conn.CreatedTime.Format(time.DateTime)
-		}
+		result.WriteString(fmt.Sprintf("\tPID: %-4d - %s\n", process.PID, process.GetCmdline()))
 		result.WriteString(fmt.Sprintf(
 			"\t\t%s - %s - %s => %s - %s\n",
 			process.Conn.Protocol,
 			process.Conn.State,
 			process.Conn.GetLocalSocketAddr(),
 			process.Conn.GetForeignSocketAddr(),
-			createdTime,
+			process.Conn.GetCreatedTimeAsStr(),
 		))
 	}
 
@@ -124,4 +108,14 @@ func (colp *NetworkPlugin) getFormattedDataForProcessGroup(processPath string, p
 		result.WriteString("\n")
 	}
 	return result.String()
+}
+
+func getFormattedDataForMissingInfoConnection(nc *datastore.NetworkConnection) string {
+	return fmt.Sprintf(
+		"\t\t%-8s - %-11s - %-44s => %-44s\n",
+		nc.Protocol,
+		nc.State,
+		nc.GetLocalSocketAddr(),
+		nc.GetForeignSocketAddr(),
+	)
 }

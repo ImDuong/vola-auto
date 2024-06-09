@@ -67,6 +67,7 @@ func runCollectorPlugins() error {
 		&processes.TreePlugin{},
 		&processes.TimelinePlugin{},
 		&processes.NetworkPlugin{},
+		&processes.NetworkTimelinePlugin{},
 	}
 
 	// empty file collector plugin to validate dumped folder
