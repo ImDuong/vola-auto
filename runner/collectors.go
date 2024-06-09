@@ -26,13 +26,13 @@ func runCollectorPlugins() error {
 	}
 
 	for _, plg := range colPlgs {
-		utils.Logger.Info("Running", zap.String("plugin", plg.GetName()))
+		utils.Logger.Info("Starting", zap.String("plugin", plg.GetName()))
 		err := plg.Run()
 		if err != nil {
-			utils.Logger.Error("Running", zap.String("plugin", plg.GetName()), zap.Error(err))
+			utils.Logger.Error("Starting", zap.String("plugin", plg.GetName()), zap.Error(err))
 			continue
 		}
-		utils.Logger.Info("Finish", zap.String("plugin", plg.GetName()))
+		utils.Logger.Info("Finished", zap.String("plugin", plg.GetName()))
 	}
 
 	colPlgRunningPool := pond.New(15, 100)
@@ -77,12 +77,12 @@ func runCollectorPlugins() error {
 			utils.Logger.Warn("Skipping", zap.String("plugin", plg.GetName()))
 			continue
 		}
-		utils.Logger.Info("Running", zap.String("plugin", plg.GetName()))
+		utils.Logger.Info("Starting", zap.String("plugin", plg.GetName()))
 		copiedPlg := plg
 		mainTaskGroup.Submit(func() {
 			err := copiedPlg.Run()
 			if err != nil {
-				utils.Logger.Error("Running", zap.String("plugin", copiedPlg.GetName()), zap.Error(err))
+				utils.Logger.Error("Starting", zap.String("plugin", copiedPlg.GetName()), zap.Error(err))
 				return
 			}
 
@@ -92,7 +92,7 @@ func runCollectorPlugins() error {
 				return
 			}
 
-			utils.Logger.Info("Finish", zap.String("plugin", copiedPlg.GetName()))
+			utils.Logger.Info("Finished", zap.String("plugin", copiedPlg.GetName()))
 		})
 	}
 

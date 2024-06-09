@@ -10,7 +10,7 @@ import (
 	"github.com/ImDuong/vola-auto/plugins/volatility/info"
 	"github.com/ImDuong/vola-auto/plugins/volatility/lsadump"
 	"github.com/ImDuong/vola-auto/plugins/volatility/mft"
-	"github.com/ImDuong/vola-auto/plugins/volatility/netstat"
+	"github.com/ImDuong/vola-auto/plugins/volatility/network"
 	"github.com/ImDuong/vola-auto/plugins/volatility/pe_version"
 	"github.com/ImDuong/vola-auto/plugins/volatility/process"
 	"github.com/ImDuong/vola-auto/utils"
@@ -43,7 +43,7 @@ func runVolatilityPlugins() error {
 	firstPlg := &info.InfoPlugin{}
 	err := firstPlg.Run()
 	if err != nil {
-		utils.Logger.Error("Running", zap.String("plugin", firstPlg.GetName()), zap.Error(err))
+		utils.Logger.Error("Starting", zap.String("plugin", firstPlg.GetName()), zap.Error(err))
 		return err
 	}
 	volPlgs := []plugins.VolPlugin{
@@ -58,7 +58,8 @@ func runVolatilityPlugins() error {
 		&envars.EnvarsPlugin{},
 		&pe_version.PEVersionPlugin{},
 		&filescan.FilescanPlugin{},
-		&netstat.NetstatPlugin{},
+		&network.NetstatPlugin{},
+		&network.NetscanPlugin{},
 		&hivelist.HivelistPlugin{},
 		&lsadump.LsadumpPlugin{},
 		&iat.IATPlugin{},
@@ -70,7 +71,7 @@ func runVolatilityPlugins() error {
 			utils.Logger.Warn("Skipping", zap.String("plugin", plg.GetName()))
 			continue
 		}
-		utils.Logger.Info("Running", zap.String("plugin", plg.GetName()))
+		utils.Logger.Info("Starting", zap.String("plugin", plg.GetName()))
 
 		// if using the same plg variable for all tasks, the plg inside each task will change following the newest value of plg while looping
 		// hence, copy the plugin inside each loop so each parallel task will have an indiviual plugin variable
@@ -78,10 +79,10 @@ func runVolatilityPlugins() error {
 		volPlgRunningPool.Submit(func() {
 			err := copiedPlg.Run()
 			if err != nil {
-				utils.Logger.Error("Running", zap.String("plugin", copiedPlg.GetName()), zap.Error(err))
+				utils.Logger.Error("Starting", zap.String("plugin", copiedPlg.GetName()), zap.Error(err))
 				return
 			}
-			utils.Logger.Info("Finish", zap.String("plugin", copiedPlg.GetName()))
+			utils.Logger.Info("Finished", zap.String("plugin", copiedPlg.GetName()))
 		})
 	}
 	volPlgRunningPool.StopAndWait()
