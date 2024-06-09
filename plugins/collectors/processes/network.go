@@ -56,12 +56,11 @@ func (colp *NetworkPlugin) Run() error {
 	for i := range datastore.MissingInfoNetworkConnection {
 		networkFileWriter.Write([]byte(
 			fmt.Sprintf(
-				"\t\t%s - %s - %s => %s - %s\n",
+				"\t\t%s - %s - %s => %s\n",
 				datastore.MissingInfoNetworkConnection[i].Protocol,
 				datastore.MissingInfoNetworkConnection[i].State,
 				datastore.MissingInfoNetworkConnection[i].GetLocalSocketAddr(),
 				datastore.MissingInfoNetworkConnection[i].GetForeignSocketAddr(),
-				datastore.MissingInfoNetworkConnection[i].CreatedTime.Format(time.DateTime),
 			),
 		))
 	}
@@ -86,23 +85,43 @@ func (colp *NetworkPlugin) groupProcessByPath() PathToProcesses {
 func (colp *NetworkPlugin) getFormattedDataForProcessGroup(processPath string, processGroup datastore.ProcessByPID) string {
 	sort.Sort(processGroup)
 
-	var result strings.Builder
-	result.WriteString(processPath + "\n")
-
-	for _, process := range processGroup {
-		result.WriteString(fmt.Sprintf("\tPID: %d - %s\n", process.PID, process.Args))
-		if process.Conn != nil {
-			result.WriteString(fmt.Sprintf(
-				"\t\t%s - %s - %s => %s - %s\n",
-				process.Conn.Protocol,
-				process.Conn.State,
-				process.Conn.GetLocalSocketAddr(),
-				process.Conn.GetForeignSocketAddr(),
-				process.CreatedTime.Format(time.DateTime),
-			))
-		}
+	if len(strings.TrimSpace(processPath)) == 0 {
+		processPath = "cannot_parse_process"
 	}
 
-	result.WriteString("\n")
+	var result strings.Builder
+	isNetConnAvail := false
+	for _, process := range processGroup {
+		if process.Conn == nil {
+			continue
+		}
+		if !isNetConnAvail {
+			// write only once to the start of the string
+			result.WriteString(processPath + "\n")
+			isNetConnAvail = true
+		}
+		procInfo := process.Args
+		if len(strings.TrimSpace(procInfo)) == 0 {
+			procInfo = process.ImageName
+		}
+		result.WriteString(fmt.Sprintf("\tPID: %d - %s\n", process.PID, procInfo))
+
+		var createdTime string = ""
+		if !process.Conn.CreatedTime.IsZero() {
+			createdTime = process.Conn.CreatedTime.Format(time.DateTime)
+		}
+		result.WriteString(fmt.Sprintf(
+			"\t\t%s - %s - %s => %s - %s\n",
+			process.Conn.Protocol,
+			process.Conn.State,
+			process.Conn.GetLocalSocketAddr(),
+			process.Conn.GetForeignSocketAddr(),
+			createdTime,
+		))
+	}
+
+	if isNetConnAvail {
+		result.WriteString("\n")
+	}
 	return result.String()
 }

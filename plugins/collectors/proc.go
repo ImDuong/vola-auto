@@ -220,7 +220,7 @@ func (colp *ProcessesPlugin) retrieveNetworkObjects(netPlg plugins.VolPlugin) er
 				utils.Logger.Warn("invalid TCP connection state", zap.String("state", state), zap.String("plugin", colp.GetName()), zap.Error(err))
 			}
 		} else {
-			state = ""
+			state = "stateless"
 			pidIdx = 6
 		}
 
