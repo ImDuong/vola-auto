@@ -38,7 +38,7 @@ var TCPConnectionStates = [...]TCPConnectionState{
 	"DELETE_TCB",
 }
 
-var MissingInfoNetworkConnection []*NetworkConnection
+var MissingInfoNetworkConnection = make(map[string]*NetworkConnection)
 
 func (nc *NetworkConnection) GetLocalSocketAddr() string {
 	return nc.getSocketAddr(nc.LocalAddr, nc.LocalPort)
@@ -53,6 +53,10 @@ func (nc *NetworkConnection) getSocketAddr(ipAddr string, port uint) string {
 		ipAddr = "[" + ipAddr + "]"
 	}
 	return fmt.Sprintf("%s:%d", ipAddr, port)
+}
+
+func (nc *NetworkConnection) GetSocketPair() string {
+	return fmt.Sprintf("%s=>%s", nc.GetLocalSocketAddr(), nc.GetForeignSocketAddr())
 }
 
 func (nc *NetworkConnection) GetCreatedTimeAsStr() string {

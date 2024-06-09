@@ -247,11 +247,23 @@ func (colp *ProcessesPlugin) retrieveNetworkObjects(netPlg plugins.VolPlugin) er
 
 		parsedPID, err := strconv.Atoi(parts[pidIdx])
 		if err != nil {
-			datastore.MissingInfoNetworkConnection = append(datastore.MissingInfoNetworkConnection, &netObj)
+			datastore.MissingInfoNetworkConnection[netObj.GetSocketPair()] = &netObj
 			continue
 		}
 
 		parsedOwnerProcessName := parts[pidIdx+1]
+		linkedProc, ok := datastore.PIDToProcess[uint(parsedPID)]
+		if !ok {
+			datastore.PIDToProcess[uint(parsedPID)] = &datastore.Process{
+				PID:       uint(parsedPID),
+				ImageName: parsedOwnerProcessName,
+			}
+			linkedProc = datastore.PIDToProcess[uint(parsedPID)]
+		}
+
+		if linkedProc.Conn != nil {
+			continue
+		}
 
 		rawCreatedTime := strings.TrimSpace(strings.Join(parts[pidIdx+2:], " "))
 		if len(rawCreatedTime) > 0 && rawCreatedTime != "N/A" && rawCreatedTime != "-" {
@@ -264,19 +276,12 @@ func (colp *ProcessesPlugin) retrieveNetworkObjects(netPlg plugins.VolPlugin) er
 			}
 		}
 
-		if _, ok := datastore.PIDToProcess[uint(parsedPID)]; !ok {
-			datastore.PIDToProcess[uint(parsedPID)] = &datastore.Process{
-				PID:       uint(parsedPID),
-				ImageName: parsedOwnerProcessName,
-			}
-		}
+		linkedProc.Conn = &netObj
+		netObj.OwnerProcess = linkedProc
 
-		datastore.PIDToProcess[uint(parsedPID)].Conn = &netObj
-		netObj.OwnerProcess = datastore.PIDToProcess[uint(parsedPID)]
-
-		if !strings.EqualFold(datastore.PIDToProcess[uint(parsedPID)].ImageName, parsedOwnerProcessName) {
+		if !strings.EqualFold(linkedProc.ImageName, parsedOwnerProcessName) {
 			utils.Logger.Warn("parsed process name mismatch", zap.Int("pid", parsedPID),
-				zap.String("stored_proc_name", datastore.PIDToProcess[uint(parsedPID)].ImageName),
+				zap.String("stored_proc_name", linkedProc.ImageName),
 				zap.String("parsed_proc_name", parsedOwnerProcessName),
 				zap.String("plugin", colp.GetName()), zap.Error(err))
 		}

@@ -62,7 +62,7 @@ func (colp *NetworkPlugin) Run() error {
 func (colp *NetworkPlugin) groupProcessByPath() PathToProcesses {
 	groupedProcesses := make(PathToProcesses)
 	for _, proc := range datastore.PIDToProcess {
-		groupedProcesses[proc.FullPath] = append(groupedProcesses[proc.FullPath], proc)
+		groupedProcesses[strings.ToLower(proc.FullPath)] = append(groupedProcesses[proc.FullPath], proc)
 	}
 	return groupedProcesses
 }
