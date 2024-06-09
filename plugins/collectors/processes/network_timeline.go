@@ -54,20 +54,24 @@ func (colp *NetworkTimelinePlugin) Run() error {
 	})
 
 	for _, proc := range tempProcList {
-		if proc.Conn == nil {
+		if len(proc.Connections) == 0 {
 			continue
 		}
-		networkTimelineFileWriter.Write([]byte(fmt.Sprintf(
-			"%-29s - %-4d - %-25s - %-8s - %-11s - %-44s => %-44s - %s\n",
-			proc.Conn.GetCreatedTimeAsStr(),
-			proc.PID,
-			proc.ImageName,
-			proc.Conn.Protocol,
-			proc.Conn.State,
-			proc.Conn.GetLocalSocketAddr(),
-			proc.Conn.GetForeignSocketAddr(),
-			proc.GetCmdline(),
-		)))
+
+		for conIdx := range proc.Connections {
+			networkTimelineFileWriter.Write([]byte(fmt.Sprintf(
+				"%-29s - %-4d - %-25s - %-8s - %-11s - %-44s => %-44s - %s\n",
+				proc.Connections[conIdx].GetCreatedTimeAsStr(),
+				proc.PID,
+				proc.ImageName,
+				proc.Connections[conIdx].Protocol,
+				proc.Connections[conIdx].State,
+				proc.Connections[conIdx].GetLocalSocketAddr(),
+				proc.Connections[conIdx].GetForeignSocketAddr(),
+				proc.GetCmdline(),
+			)))
+		}
+
 	}
 
 	networkTimelineFileWriter.Write([]byte("\nMissing Information Network Connection\n"))

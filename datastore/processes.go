@@ -3,6 +3,8 @@ package datastore
 import (
 	"strings"
 	"time"
+
+	"github.com/ImDuong/vola-auto/utils"
 )
 
 type (
@@ -13,7 +15,7 @@ type (
 		ParentProc  *Process
 		Args        string
 		CreatedTime time.Time
-		Conn        *NetworkConnection
+		Connections []*NetworkConnection
 	}
 )
 
@@ -47,9 +49,32 @@ func (p *Process) ParseFullPathByArgs() {
 	}
 }
 
+func (p *Process) GetFullPath() string {
+	return utils.GetPathInCamelCase(p.FullPath)
+}
+
 func (p *Process) GetCmdline() string {
 	if len(p.Args) == 0 {
 		return p.FullPath
 	}
 	return p.Args
+}
+
+func (p *Process) AddConn(conn *NetworkConnection) {
+	if conn == nil {
+		return
+	}
+	p.Connections = append(p.Connections, conn)
+}
+
+func (p *Process) IsConnExisted(conn *NetworkConnection) bool {
+	if conn == nil {
+		return false
+	}
+	for i := range p.Connections {
+		if p.Connections[i].GetSocketPair() == conn.GetSocketPair() {
+			return true
+		}
+	}
+	return false
 }

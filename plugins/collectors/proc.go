@@ -12,13 +12,11 @@ import (
 	"github.com/ImDuong/vola-auto/plugins/volatility/network"
 	"github.com/ImDuong/vola-auto/plugins/volatility/process"
 	"github.com/ImDuong/vola-auto/utils"
-	"github.com/alitto/pond"
 	"go.uber.org/zap"
 )
 
 type (
 	ProcessesPlugin struct {
-		WorkerPool *pond.WorkerPool
 	}
 )
 
@@ -168,6 +166,7 @@ func (colp *ProcessesPlugin) constructProcessRelation() error {
 	if err := scanner.Err(); err != nil {
 		utils.Logger.Warn("Constructing process relations", zap.String("plugin", colp.GetName()), zap.Error(err))
 	}
+
 	return nil
 }
 
@@ -232,7 +231,7 @@ func (colp *ProcessesPlugin) retrieveNetworkObjects(netPlg plugins.VolPlugin) er
 				utils.Logger.Warn("invalid TCP connection state", zap.String("state", state), zap.String("plugin", colp.GetName()), zap.Error(err))
 			}
 		} else {
-			state = "stateless"
+			state = ""
 			pidIdx = 6
 		}
 
@@ -261,7 +260,7 @@ func (colp *ProcessesPlugin) retrieveNetworkObjects(netPlg plugins.VolPlugin) er
 			linkedProc = datastore.PIDToProcess[uint(parsedPID)]
 		}
 
-		if linkedProc.Conn != nil {
+		if linkedProc.IsConnExisted(&netObj) {
 			continue
 		}
 
@@ -276,7 +275,7 @@ func (colp *ProcessesPlugin) retrieveNetworkObjects(netPlg plugins.VolPlugin) er
 			}
 		}
 
-		linkedProc.Conn = &netObj
+		linkedProc.AddConn(&netObj)
 		netObj.OwnerProcess = linkedProc
 
 		if !strings.EqualFold(linkedProc.ImageName, parsedOwnerProcessName) {

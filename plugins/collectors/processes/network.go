@@ -62,7 +62,7 @@ func (colp *NetworkPlugin) Run() error {
 func (colp *NetworkPlugin) groupProcessByPath() PathToProcesses {
 	groupedProcesses := make(PathToProcesses)
 	for _, proc := range datastore.PIDToProcess {
-		groupedProcesses[strings.ToLower(proc.FullPath)] = append(groupedProcesses[proc.FullPath], proc)
+		groupedProcesses[proc.GetFullPath()] = append(groupedProcesses[proc.GetFullPath()], proc)
 	}
 	return groupedProcesses
 }
@@ -82,8 +82,8 @@ func (colp *NetworkPlugin) getFormattedDataForProcessGroup(processPath string, p
 
 	var result strings.Builder
 	isNetConnAvail := false
-	for _, process := range processGroup {
-		if process.Conn == nil {
+	for _, proc := range processGroup {
+		if len(proc.Connections) == 0 {
 			continue
 		}
 
@@ -92,16 +92,18 @@ func (colp *NetworkPlugin) getFormattedDataForProcessGroup(processPath string, p
 			result.WriteString(processPath + "\n")
 			isNetConnAvail = true
 		}
+		for conIdx := range proc.Connections {
+			result.WriteString(fmt.Sprintf("\tPID: %-4d - %s\n", proc.PID, proc.GetCmdline()))
+			result.WriteString(fmt.Sprintf(
+				"\t\t%-8s - %-11s - %-44s => %-44s - %s\n",
+				proc.Connections[conIdx].Protocol,
+				proc.Connections[conIdx].State,
+				proc.Connections[conIdx].GetLocalSocketAddr(),
+				proc.Connections[conIdx].GetForeignSocketAddr(),
+				proc.Connections[conIdx].GetCreatedTimeAsStr(),
+			))
+		}
 
-		result.WriteString(fmt.Sprintf("\tPID: %-4d - %s\n", process.PID, process.GetCmdline()))
-		result.WriteString(fmt.Sprintf(
-			"\t\t%s - %s - %s => %s - %s\n",
-			process.Conn.Protocol,
-			process.Conn.State,
-			process.Conn.GetLocalSocketAddr(),
-			process.Conn.GetForeignSocketAddr(),
-			process.Conn.GetCreatedTimeAsStr(),
-		))
 	}
 
 	if isNetConnAvail {
