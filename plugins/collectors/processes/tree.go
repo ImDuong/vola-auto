@@ -54,7 +54,7 @@ func (colp *TreePlugin) Run() error {
 		return err
 	}
 
-	treeFileWriter, err := os.OpenFile(colp.GetArtifactsCollectionPath(), os.O_CREATE|os.O_WRONLY, 0644)
+	treeFileWriter, err := os.OpenFile(colp.GetArtifactsCollectionPath(), os.O_CREATE|os.O_WRONLY, 0755)
 	if err != nil {
 		return err
 	}

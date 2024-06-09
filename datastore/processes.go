@@ -13,6 +13,7 @@ type (
 		ParentProc  *Process
 		Args        string
 		CreatedTime time.Time
+		Conn        *NetworkConnection
 	}
 )
 

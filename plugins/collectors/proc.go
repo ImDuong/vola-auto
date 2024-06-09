@@ -83,15 +83,23 @@ func (colp *ProcessesPlugin) Run() error {
 		utils.Logger.Warn("Collecting processes", zap.String("plugin", colp.GetName()), zap.Error(err))
 	}
 
-	// read pslist to construct parent-child relation
+	if err := colp.constructProcessRelation(); err != nil {
+		utils.Logger.Warn("Collecting processes relation", zap.String("plugin", colp.GetName()), zap.Error(err))
+	}
+
+	return nil
+}
+
+// constructProcessRelation() read pslist to construct parent-child relation
+func (colp *ProcessesPlugin) constructProcessRelation() error {
 	pslistPlg := process.ProcessPsListPlugin{}
 	pslistArtifactFiles, err := os.Open(pslistPlg.GetArtifactsExtractionPath())
 	if err != nil {
 		return err
 	}
 	defer pslistArtifactFiles.Close()
-	scanner = bufio.NewScanner(pslistArtifactFiles)
-	isProcessDataFound = false
+	scanner := bufio.NewScanner(pslistArtifactFiles)
+	isProcessDataFound := false
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -137,6 +145,5 @@ func (colp *ProcessesPlugin) Run() error {
 	if err := scanner.Err(); err != nil {
 		utils.Logger.Warn("Constructing process relations", zap.String("plugin", colp.GetName()), zap.Error(err))
 	}
-
 	return nil
 }
