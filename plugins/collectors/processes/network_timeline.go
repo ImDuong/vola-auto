@@ -39,39 +39,33 @@ func (colp *NetworkTimelinePlugin) Run() error {
 	}
 	defer networkTimelineFileWriter.Close()
 
-	tempProcList := make([]*datastore.Process, len(datastore.PIDToProcess))
-	idx := 0
+	var sortingConnList []*datastore.NetworkConnection
 	for i := range datastore.PIDToProcess {
-		tempProcList[idx] = datastore.PIDToProcess[i]
-		idx++
-	}
-
-	sort.Slice(tempProcList, func(i, j int) bool {
-		if tempProcList[i].CreatedTime.IsZero() {
-			return false
-		}
-		return tempProcList[i].CreatedTime.After(tempProcList[j].CreatedTime)
-	})
-
-	for _, proc := range tempProcList {
-		if len(proc.Connections) == 0 {
+		if len(datastore.PIDToProcess[i].Connections) == 0 {
 			continue
 		}
+		sortingConnList = append(sortingConnList, datastore.PIDToProcess[i].Connections...)
+	}
 
-		for conIdx := range proc.Connections {
-			networkTimelineFileWriter.Write([]byte(fmt.Sprintf(
-				"%-29s - %-4d - %-25s - %-8s - %-11s - %-44s => %-44s - %s\n",
-				proc.Connections[conIdx].GetCreatedTimeAsStr(),
-				proc.PID,
-				proc.ImageName,
-				proc.Connections[conIdx].Protocol,
-				proc.Connections[conIdx].State,
-				proc.Connections[conIdx].GetLocalSocketAddr(),
-				proc.Connections[conIdx].GetForeignSocketAddr(),
-				proc.GetCmdline(),
-			)))
+	sort.Slice(sortingConnList, func(i, j int) bool {
+		if sortingConnList[i].CreatedTime.IsZero() {
+			return false
 		}
+		return sortingConnList[i].CreatedTime.After(sortingConnList[j].CreatedTime)
+	})
 
+	for _, conn := range sortingConnList {
+		networkTimelineFileWriter.Write([]byte(fmt.Sprintf(
+			"%-29s - %-4d - %-25s - %-8s - %-11s - %-44s => %-44s - %s\n",
+			conn.GetCreatedTimeAsStr(),
+			conn.OwnerProcess.PID,
+			conn.OwnerProcess.ImageName,
+			conn.Protocol,
+			conn.State,
+			conn.GetLocalSocketAddr(),
+			conn.GetForeignSocketAddr(),
+			conn.OwnerProcess.GetCmdline(),
+		)))
 	}
 
 	networkTimelineFileWriter.Write([]byte("\nMissing Information Network Connection\n"))
