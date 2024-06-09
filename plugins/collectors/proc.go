@@ -5,8 +5,11 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ImDuong/vola-auto/datastore"
+	"github.com/ImDuong/vola-auto/plugins"
+	"github.com/ImDuong/vola-auto/plugins/volatility/network"
 	"github.com/ImDuong/vola-auto/plugins/volatility/process"
 	"github.com/ImDuong/vola-auto/utils"
 	"github.com/alitto/pond"
@@ -87,6 +90,14 @@ func (colp *ProcessesPlugin) Run() error {
 		utils.Logger.Warn("Collecting processes relation", zap.String("plugin", colp.GetName()), zap.Error(err))
 	}
 
+	if err := colp.retrieveNetworkObjects(&network.NetstatPlugin{}); err != nil {
+		utils.Logger.Warn("Collecting processes network objects", zap.String("plugin", colp.GetName()), zap.Error(err))
+	}
+
+	if err := colp.retrieveNetworkObjects(&network.NetscanPlugin{}); err != nil {
+		utils.Logger.Warn("Collecting processes network objects", zap.String("plugin", colp.GetName()), zap.Error(err))
+	}
+
 	return nil
 }
 
@@ -140,6 +151,123 @@ func (colp *ProcessesPlugin) constructProcessRelation() error {
 		}
 
 		datastore.PIDToProcess[uint(parsedPID)].ParentProc = datastore.PIDToProcess[uint(parsedPPID)]
+	}
+
+	if err := scanner.Err(); err != nil {
+		utils.Logger.Warn("Constructing process relations", zap.String("plugin", colp.GetName()), zap.Error(err))
+	}
+	return nil
+}
+
+func (colp *ProcessesPlugin) retrieveNetworkObjects(netPlg plugins.VolPlugin) error {
+	netstatArtifactFiles, err := os.Open(netPlg.GetArtifactsExtractionPath())
+	if err != nil {
+		return err
+	}
+	defer netstatArtifactFiles.Close()
+	scanner := bufio.NewScanner(netstatArtifactFiles)
+	isNetworkObjectDataFound := false
+
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		if len(line) == 0 {
+			continue
+		}
+		if !isNetworkObjectDataFound {
+			if strings.Contains(line, "Offset") && strings.Contains(line, "Proto") && strings.Contains(line, "LocalAddr") {
+				isNetworkObjectDataFound = true
+			}
+			continue
+		}
+
+		parts := strings.Fields(line)
+		if len(parts) < 9 {
+			continue
+		}
+
+		parsedProtocol := parts[1]
+
+		isTCPConnection := false
+		if strings.Contains(strings.ToLower(parsedProtocol), "tcp") {
+			if len(parts) < 10 {
+				continue
+			}
+			isTCPConnection = true
+		}
+
+		parsedLocalIP := parts[2]
+		parsedLocalPort, err := strconv.Atoi(parts[3])
+		if err != nil {
+			utils.Logger.Warn("parse local port failed", zap.String("local_port", parts[3]), zap.String("plugin", colp.GetName()), zap.Error(err))
+			continue
+		}
+
+		parsedForeignIP := parts[4]
+		parsedForeignPort, err := strconv.Atoi(parts[5])
+		if err != nil {
+			utils.Logger.Warn("parse foreign port failed", zap.String("foreign_port", parts[5]), zap.String("plugin", colp.GetName()), zap.Error(err))
+			continue
+		}
+
+		var state string
+		var pidIdx int
+		if isTCPConnection {
+			state = parts[6]
+			pidIdx = 7
+
+			if !datastore.IsValidTCPConnectionState(state) {
+				utils.Logger.Warn("invalid TCP connection state", zap.String("state", state), zap.String("plugin", colp.GetName()), zap.Error(err))
+			}
+		} else {
+			state = ""
+			pidIdx = 6
+		}
+
+		netObj := datastore.NetworkConnection{
+			Protocol:    parsedProtocol,
+			LocalAddr:   parsedLocalIP,
+			LocalPort:   uint(parsedLocalPort),
+			ForeignAddr: parsedForeignIP,
+			ForeignPort: uint(parsedForeignPort),
+			State:       state,
+		}
+
+		parsedPID, err := strconv.Atoi(parts[pidIdx])
+		if err != nil {
+			datastore.MissingInfoNetworkConnection = append(datastore.MissingInfoNetworkConnection, &netObj)
+			continue
+		}
+
+		parsedOwnerProcessName := parts[pidIdx+1]
+
+		rawCreatedTime := strings.TrimSpace(strings.Join(parts[pidIdx+2:], " "))
+		if len(rawCreatedTime) > 0 && rawCreatedTime != "N/A" && rawCreatedTime != "-" {
+			layout := "2006-01-02 15:04:05.000000"
+			parsedCreatedTime, err := time.Parse(layout, rawCreatedTime)
+			if err != nil {
+				utils.Logger.Warn("parse created time failed", zap.Int("pid", parsedPID), zap.String("time", rawCreatedTime), zap.String("plugin", colp.GetName()), zap.Error(err))
+			} else {
+				netObj.CreatedTime = parsedCreatedTime
+			}
+		}
+
+		if _, ok := datastore.PIDToProcess[uint(parsedPID)]; !ok {
+			datastore.PIDToProcess[uint(parsedPID)] = &datastore.Process{
+				PID:       uint(parsedPID),
+				ImageName: parsedOwnerProcessName,
+			}
+		}
+
+		datastore.PIDToProcess[uint(parsedPID)].Conn = &netObj
+		netObj.OwnerProcess = datastore.PIDToProcess[uint(parsedPID)]
+
+		if !strings.EqualFold(datastore.PIDToProcess[uint(parsedPID)].ImageName, parsedOwnerProcessName) {
+			utils.Logger.Warn("parsed process name mismatch", zap.Int("pid", parsedPID),
+				zap.String("stored_proc_name", datastore.PIDToProcess[uint(parsedPID)].ImageName),
+				zap.String("parsed_proc_name", parsedOwnerProcessName),
+				zap.String("plugin", colp.GetName()), zap.Error(err))
+		}
 	}
 
 	if err := scanner.Err(); err != nil {

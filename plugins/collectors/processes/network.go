@@ -52,6 +52,20 @@ func (colp *NetworkPlugin) Run() error {
 		networkFileWriter.Write([]byte(formattedData))
 	}
 
+	networkFileWriter.Write([]byte("\nMissing Information Network Connection\n"))
+	for i := range datastore.MissingInfoNetworkConnection {
+		networkFileWriter.Write([]byte(
+			fmt.Sprintf(
+				"\t\t%s - %s - %s => %s - %s\n",
+				datastore.MissingInfoNetworkConnection[i].Protocol,
+				datastore.MissingInfoNetworkConnection[i].State,
+				datastore.MissingInfoNetworkConnection[i].GetLocalSocketAddr(),
+				datastore.MissingInfoNetworkConnection[i].GetForeignSocketAddr(),
+				datastore.MissingInfoNetworkConnection[i].CreatedTime.Format(time.DateTime),
+			),
+		))
+	}
+
 	return nil
 }
 
