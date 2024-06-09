@@ -102,9 +102,9 @@ func (colp *NetworkPlugin) getFormattedDataForProcessGroup(processPath string, p
 		}
 		procInfo := process.Args
 		if len(strings.TrimSpace(procInfo)) == 0 {
-			procInfo = process.ImageName
+			procInfo = process.FullPath
 		}
-		result.WriteString(fmt.Sprintf("\tPID: %d - %s\n", process.PID, procInfo))
+		result.WriteString(fmt.Sprintf("\tPID: %-4d - %s\n", process.PID, procInfo))
 
 		var createdTime string = ""
 		if !process.Conn.CreatedTime.IsZero() {

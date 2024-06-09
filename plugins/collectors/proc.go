@@ -76,9 +76,15 @@ func (colp *ProcessesPlugin) Run() error {
 
 		if proc.PID != 4 {
 			proc.Args = strings.Join(parts[2:], " ")
+
+			proc.ParseFullPathByArgs()
+			if len(proc.FullPath) == 0 {
+				proc.FullPath = proc.ImageName
+			}
+		} else {
+			proc.FullPath = `C:\Windows\System32\ntoskrnl.exe`
 		}
 
-		proc.ParseFullPathByArgs()
 		datastore.PIDToProcess[proc.PID] = &proc
 	}
 
@@ -147,7 +153,13 @@ func (colp *ProcessesPlugin) constructProcessRelation() error {
 			continue
 		}
 		if _, ok := datastore.PIDToProcess[uint(parsedPPID)]; !ok {
-			datastore.PIDToProcess[uint(parsedPPID)] = &datastore.Process{PID: uint(parsedPPID)}
+			parentProc := datastore.Process{
+				PID: uint(parsedPPID),
+			}
+			if parentProc.PID == 0 {
+				parentProc.ImageName = "System Idle Process"
+			}
+			datastore.PIDToProcess[uint(parsedPPID)] = &parentProc
 		}
 
 		datastore.PIDToProcess[uint(parsedPID)].ParentProc = datastore.PIDToProcess[uint(parsedPPID)]
