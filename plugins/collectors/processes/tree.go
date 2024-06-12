@@ -32,18 +32,28 @@ func (colp *TreePlugin) GetArtifactsCollectionFolderpath() string {
 	return filepath.Join(config.Default.OutputFolder, ProcessCollectionFolderName)
 }
 
-func (colp *TreePlugin) printTreeToFile(process *datastore.Process, depth int, outputFile *os.File) {
-	if process == nil {
+func (colp *TreePlugin) printTreeToFile(proc *datastore.Process, depth int, outputFile *os.File) {
+	if proc == nil {
 		return
 	}
 
-	nodeValue := fmt.Sprintf("%d %s - %s", process.PID, process.ImageName, process.Args)
+	procFullInfo := proc.Args
+	if len(procFullInfo) == 0 {
+		procFullInfo = proc.FullPath
+	}
+	nodeValue := fmt.Sprintf("%-4d %s - %s", proc.PID, proc.ImageName, procFullInfo)
 	fmt.Fprintf(outputFile, "%s%s\n", strings.Repeat(" ", depth*4), nodeValue)
 
+	var subProcGroup datastore.ProcessByPID
 	for _, child := range datastore.PIDToProcess {
-		if child.ParentProc != nil && child.ParentProc.PID == process.PID {
-			colp.printTreeToFile(child, depth+1, outputFile)
+		if child.ParentProc != nil && child.ParentProc.PID == proc.PID {
+			subProcGroup = append(subProcGroup, child)
 		}
+	}
+
+	sort.Sort(subProcGroup)
+	for _, subProc := range subProcGroup {
+		colp.printTreeToFile(subProc, depth+1, outputFile)
 	}
 }
 
@@ -54,7 +64,7 @@ func (colp *TreePlugin) Run() error {
 		return err
 	}
 
-	treeFileWriter, err := os.OpenFile(colp.GetArtifactsCollectionPath(), os.O_CREATE|os.O_WRONLY, 0644)
+	treeFileWriter, err := os.OpenFile(colp.GetArtifactsCollectionPath(), os.O_CREATE|os.O_WRONLY, 0755)
 	if err != nil {
 		return err
 	}

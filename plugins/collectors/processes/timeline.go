@@ -35,7 +35,7 @@ func (colp *TimelinePlugin) GetArtifactsCollectionFolderpath() string {
 	return filepath.Join(config.Default.OutputFolder, ProcessCollectionFolderName)
 }
 
-// print out process tree
+// Run() collects created time from pslist plugin, and writes out under csv format
 func (colp *TimelinePlugin) Run() error {
 	err := os.MkdirAll(colp.GetArtifactsCollectionFolderpath(), 0755)
 	if err != nil {
@@ -88,11 +88,10 @@ func (colp *TimelinePlugin) Run() error {
 		layout := "2006-01-02 15:04:05.000000"
 		parsedTime, err := time.Parse(layout, createdTime)
 		if err != nil {
-			utils.Logger.Warn("parse created time failed", zap.String("time", createdTime), zap.String("plugin", colp.GetName()), zap.Error(err))
-			continue
+			utils.Logger.Warn("parse created time failed", zap.Int("pid", parsedPID), zap.String("time", createdTime), zap.String("plugin", colp.GetName()), zap.Error(err))
+		} else {
+			datastore.PIDToProcess[uint(parsedPID)].CreatedTime = parsedTime
 		}
-
-		datastore.PIDToProcess[uint(parsedPID)].CreatedTime = parsedTime
 	}
 
 	if err := scanner.Err(); err != nil {

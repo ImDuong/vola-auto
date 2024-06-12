@@ -71,7 +71,7 @@ Where:
 - Run Volatility 3 auto streamline with `--vol` pointing to volatility 3 folder, and `--file or -f` pointing to memory dump file
 
     ```
-    go run cmd\main.go --vol <path_to_volatility3> -f <path_to_memory_dump> -o <output_folder>
+    go run cmd\main.go --vol <path_to_volatility3_folder> -f <path_to_memory_dump> -o <output_folder>
     ```
 
     - By default (also means when `-o` is not specified), vola-auto will generate folder `artifacts` in folder containing `path_to_memory_dump`
