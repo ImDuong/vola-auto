@@ -10,6 +10,7 @@ import (
 	"github.com/ImDuong/vola-auto/plugins/collectors/notifications"
 	"github.com/ImDuong/vola-auto/plugins/collectors/prefetch"
 	"github.com/ImDuong/vola-auto/plugins/collectors/processes"
+	"github.com/ImDuong/vola-auto/plugins/collectors/registry"
 	"github.com/ImDuong/vola-auto/plugins/collectors/sru"
 	"github.com/ImDuong/vola-auto/plugins/collectors/system32_config_hive"
 	"github.com/ImDuong/vola-auto/plugins/collectors/usnjrnl_j"
@@ -68,6 +69,7 @@ func runCollectorPlugins() error {
 		&processes.TimelinePlugin{},
 		&processes.NetworkPlugin{},
 		&processes.NetworkTimelinePlugin{},
+		&registry.HiveListPlugin{},
 	}
 
 	// empty file collector plugin to validate dumped folder

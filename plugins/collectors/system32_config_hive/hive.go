@@ -22,6 +22,7 @@ func (colp *HivePlugin) GetName() string {
 }
 
 func (colp *HivePlugin) GetArtifactsCollectionPath() string {
+	// if there is no dumped files, can look for /collectors/registry/hivelist if such registries are present in memory image
 	return filepath.Join(config.Default.OutputFolder, "system32_config_hive")
 }
 
