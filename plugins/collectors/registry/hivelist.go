@@ -29,10 +29,11 @@ func (colp *HiveListPlugin) Run() error {
 	}
 
 	args := []string{config.Default.VolRunConfig.Binary,
+		"-q",
 		"-f", config.Default.MemoryDumpPath,
 		"-o", colp.GetArtifactsCollectionPath(),
 		"windows.registry.hivelist.HiveList",
 		"--dump",
 	}
-	return plugins.RunVolatilityPluginAndWriteResult(args, "", true)
+	return plugins.RunVolatilityPluginAndWriteResult(args, filepath.Join(colp.GetArtifactsCollectionPath(), "hivelist.txt"), true)
 }
