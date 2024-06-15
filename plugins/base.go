@@ -92,6 +92,9 @@ func RunVolatilityPluginAndWriteResult(args []string, resultFilepath string, isO
 			// log args with info level when running batch commands
 			cmdLogging = utils.Logger.Info
 		}
+	}
+
+	if len(resultFilepath) != 0 {
 		outputFileWriter, err := os.OpenFile(resultFilepath, GetFileOpenFlag(isOverride), 0644)
 		if err != nil {
 			return fmt.Errorf("opening %s failed: %w", resultFilepath, err)

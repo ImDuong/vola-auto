@@ -65,6 +65,8 @@ func (colp *FilesPlugin) Run() error {
 			Path: parts[1],
 		}
 
+		// https://github.com/volatilityfoundation/volatility3/blob/55dd39f2ba60ffdd2126b7ea011940f0df42815a/volatility3/framework/plugins/windows/poolscanner.py#L376
+		// use virtual layer for only windows 10
 		if datastore.HostInfo.MainProfile == datastore.Win10Profile {
 			fileInfo.VirtualAddrOffset = parts[0]
 		} else {
