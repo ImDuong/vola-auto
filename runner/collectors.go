@@ -70,6 +70,9 @@ func runCollectorPlugins() error {
 		&processes.NetworkPlugin{},
 		&processes.NetworkTimelinePlugin{},
 		&registry.HiveListPlugin{},
+		&registry.NTUserDatPlugin{
+			WorkerPool: colPlgRunningPool,
+		},
 	}
 
 	// empty file collector plugin to validate dumped folder
