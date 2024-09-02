@@ -3,7 +3,7 @@ module github.com/ImDuong/vola-auto
 go 1.21.5
 
 require (
-	github.com/alitto/pond v1.8.3
+	github.com/alitto/pond v1.9.2
 	github.com/gen2brain/beeep v0.0.0-20240112042604-c7bb2cd88fea
 	github.com/urfave/cli/v3 v3.0.0-alpha9
 	go.uber.org/zap v1.27.0
