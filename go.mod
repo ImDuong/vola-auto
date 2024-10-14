@@ -5,7 +5,7 @@ go 1.21.5
 require (
 	github.com/alitto/pond v1.8.3
 	github.com/gen2brain/beeep v0.0.0-20240112042604-c7bb2cd88fea
-	github.com/urfave/cli/v3 v3.0.0-alpha9
+	github.com/urfave/cli/v3 v3.0.0-alpha9.1
 	go.uber.org/zap v1.27.0
 )
 
@@ -18,7 +18,4 @@ require (
 	golang.org/x/sys v0.19.0 // indirect
 )
 
-require (
-	github.com/google/uuid v1.6.0
-	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
-)
+require github.com/google/uuid v1.6.0
